@@ -1,11 +1,6 @@
 {
-  "name": "probmods",
-  "version": "3.0.0",
-  "homepage": "https://github.com/probmods/chapter",
-  "authors": [
-    "Noah Goodman <ngoodman@stanford.edu>",
-    "Josh Tenenbaum <jbt@mit.edu>"
-  ],
+  "name": "9.660",
+  "version": "1.0.0",
   "main": "index.md",
   "private": true,
   "ignore": [
