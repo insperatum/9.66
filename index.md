@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 9.660 Computationl Cognitive Science
+title: 9.660 Computational Cognitive Science
 custom_js:
 - assets/js/index.js
 custom_css:
@@ -8,7 +8,7 @@ custom_css:
 ---
 
 <div id="header">
-  <h1 id='title'>9.660 Computationl Cognitive Science</h1>
+  <h1 id='title'>9.660 Computational Cognitive Science</h1>
 </div>
 
 <br />
