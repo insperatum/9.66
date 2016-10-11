@@ -32,15 +32,17 @@ viz.auto(dist)
 print("P(fair | tails, tails) = " + Math.exp(dist.score(true)))
 ~~~~
 
+Notice that we used a function called "Infer" to return an object called "dist". This object describes the marginal distribution of our generative model under the conditions we give it. It has many different properties, one of which is a score (the inferred log probability of the query). So, if you want to get the probability out, just exponentiate this quantity. For more about webppl's inference functions, see https://probmods.org/v2/chapters/02-generative-models.html and http://webppl.readthedocs.io/en/latest/inference/index.html.
+
 **(b)**
-If we want to make several different queries on the same underlying model structure, we can use a code pattern like the one below. Run the two textboxes in order, noting how `editor.put` and `editor.get` can be used to persist variables between textboxes.
+If we want to make several different queries on the same underlying model structure, we can use a code pattern like the one below. The result is a function "conditionalOutputFunc" that takes as input whether or not a coin is fair, as well as the observations of two flips of that coin (face1 and face2). Run the two textboxes in order, noting how `editor.put` and `editor.get` can be used to persist variables between textboxes.
 ~~~~
-var makeModel = function(endFunction) {return function() {
+var makeModel = function(conditionalOutputFunc) {return function() {
     var fair = flip()
     var p_heads = fair ? 0.5 : 0.9
     var face1 = flip(p_heads) ? 'H' : 'T'
     var face2 = flip(p_heads) ? 'H' : 'T'
-    return endFunction(fair, face1, face2)
+    return conditionalOutputFunc(fair, face1, face2)
 }}
 editor.put("makeModel", makeModel)
 ~~~~
@@ -68,15 +70,15 @@ var makeModel = editor.get("makeModel")
 ~~~~
 
 **(c)**
-If we want to reason about arbitrary numbers of coin flips we can use `mem`, as below. This is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem)
+If we want to reason about arbitrary numbers of coin flips we can use `mem`, as below. 'mem' essentially stores the output of a random process, which allows us to call a random function multiple times but get the same output if the same input is used. This is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem)
 ~~~~
-var makeModel = function(endFunction) {return function() {
+var makeModel = function(conditionalOutputFunc) {return function() {
     var fair = flip()
     var p_heads = fair ? 0.5 : 0.9
     var faces = mem(function(i) {
     	flip(p_heads) ? 'H' : 'T'
     })
-    return endFunction(fair, faces)
+    return conditionalOutputFunc(fair, faces)
 }}
 editor.put("makeModel", makeModel)
 
