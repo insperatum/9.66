@@ -5,7 +5,7 @@ description: Due [some date]
 custom_js: assets/js/buttons.js
 ---
 
-All questions in this problem set can be solved using WebPPL, which may be written and executed directly inside textboxes on this page. These textboxes save their state so you can edit them, close the window, and return again later. To submit your work, use the export button at the bottom of the page, and then upload the result to stellar.
+All questions in this problem set can be solved using WebPPL, which may be written and executed directly inside textboxes on this page. These textboxes save their state in your browser's cache, so you can edit them, close the window, and return again later (as long as you do not clear your cache). To save a copy of your work to your machine, use the export button at the bottom of this page. We recommend doing this regularly to ensure you do not lose any of your work. To import this saved work, there is an import button at the bottom of the page. To submit your work, use the export button at the bottom of the page, and then upload the result to stellar.
 
 <div id="autosaveTxt" style="font-style:italic"></div>
 <!-- <a id="loadBtn" style="visibility:hidden"><button style="color:black">Reload</button></a>-->
@@ -32,10 +32,10 @@ viz.auto(dist)
 print("P(fair | tails, tails) = " + Math.exp(dist.score(true)))
 ~~~~
 
-Notice that we used a function called "Infer" to return an object called "dist". This object describes the marginal distribution of our generative model under the conditions we give it. It has many different properties, one of which is a score (the inferred log probability of the query). So, if you want to get the probability out, just exponentiate this quantity. For more about webppl's inference functions, see https://probmods.org/v2/chapters/02-generative-models.html and http://webppl.readthedocs.io/en/latest/inference/index.html.
+Notice that we used the `Infer` function to return a `dist` object. This object describes the marginal distribution of our generative model under the conditions we give it. It has many different properties, one of which is a score (the inferred log probability of the query). For more about webPPL's inference functions, see the [probmods textbook] (https://probmods.org/v2/chapters/02-generative-models.html) and the [webPPL documentation] (http://webppl.readthedocs.io/en/latest/inference/index.html) .
 
 **(b)**
-If we want to make several different queries on the same underlying model structure, we can use a code pattern like the one below. The result is a function "conditionalOutputFunc" that takes as input whether or not a coin is fair, as well as the observations of two flips of that coin (face1 and face2). Run the two textboxes in order, noting how `editor.put` and `editor.get` can be used to persist variables between textboxes.
+If we want to make several different queries on the same underlying model structure without having to rewrite it each time, we can use a code pattern like the one below. The result is a function "conditionalOutputFunc" that takes as input whether or not a coin is fair, as well as the observations of two flips of that coin (face1 and face2). Run the two textboxes in order, noting how `editor.put` and `editor.get` can be used to persist variables between textboxes.
 ~~~~
 var makeModel = function(conditionalOutputFunc) {return function() {
     var fair = flip()
@@ -70,7 +70,7 @@ var makeModel = editor.get("makeModel")
 ~~~~
 
 **(c)**
-If we want to reason about arbitrary numbers of coin flips we can use `mem`, as below. 'mem' essentially stores the output of a random process, which allows us to call a random function multiple times but get the same output if the same input is used. This is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem)
+If we want to reason about arbitrary numbers of coin flips we can use `mem`, as below. `mem` stores the output of a random process, which allows us to call a random function multiple times but get the same output if the same input is used. This is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem)
 ~~~~
 var makeModel = function(conditionalOutputFunc) {return function() {
     var fair = flip()
