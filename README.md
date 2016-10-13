@@ -34,5 +34,3 @@ note that this immediately follows from baz quux
 ```sh
 make deploy
 ```
-
-(requires ssh access to probmods.org; send long your pubkey to enable this)
