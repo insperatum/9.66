@@ -18,8 +18,8 @@ function loadState(state) {
 }
 
 function refreshAutosave() {
-	if(localStorage.answers_ps2) {
-		document.getElementById("autosaveTxt").innerHTML="Autosaved at: " + JSON.parse(localStorage.answers_ps2).savedAt
+	if(localStorage[autosaveTo]) {
+		document.getElementById("autosaveTxt").innerHTML="Autosaved at: " + JSON.parse(localStorage[autosaveTo]).savedAt
 		// $("#loadBtn").css('visibility', 'visible');
 	} else {
 		// $("#loadBtn").css('visibility', 'hidden');
@@ -31,7 +31,7 @@ function delayedSave() {
 	if(saveTimeout) window.clearTimeout(saveTimeout);
 	saveTimeout = window.setTimeout(function() {
 		console.log("Saving")
-		localStorage.answers_ps2 = makeState()
+		localStorage[autosaveTo] = makeState()
 		refreshAutosave()
 	}, 1000);
 }
@@ -39,7 +39,7 @@ function delayedSave() {
 
 function init() {
 	if($('.CodeMirror').length > 0) {
-		if(localStorage.answers_ps2) loadState(localStorage.answers_ps2)
+		if(localStorage[autosaveTo]) loadState(localStorage[autosaveTo])
 		$(".textAnswer").on("input", delayedSave)
 		$('.CodeMirror').each(function() {
 			this.CodeMirror.on("change", delayedSave)
@@ -60,7 +60,7 @@ $(document).ready(function() {
 	}
 
 	// document.getElementById("loadBtn").onclick = function() {
-	// 	if(localStorage.answers_ps2) loadState(localStorage.answers_ps2)
+	// 	if(localStorage[autosaveTo]) loadState(localStorage[autosaveTo])
 	// }
 
 	function handleFileSelect(evt) {

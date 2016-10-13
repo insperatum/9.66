@@ -60,7 +60,7 @@
     min-height: 0.5em;
     overflow-x: scroll;
     position: relative;
-    max-height: 600px; /* todo: figure out why a percentage doesn't work here */
+    max-height: 800px; /* todo: figure out why a percentage doesn't work here */
 }
 
 .wpedit .result pre {
