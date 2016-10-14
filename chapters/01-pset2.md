@@ -115,7 +115,7 @@ Find the probability that the next coin will come up 'heads', after observing 4 
 
 # Question 2: A Bayes Net for Exam Results
 
-> The year is 2022 A.D. You, now a young professor at MIT, are the instructor for 9.666 (“Computational Cognitive and Molecular Neuroscience”). The class contains many industrious students, but it also has some students who you suspect are, in fact, not studying. In order to determine which students are trying to get by without studying, you decide to set weekly exams. You decide to make most (50%) of the exams easy, and the rest (20%) hard. In either case, you expect that students who study will be more likely to pass the exam than students who do not study, with roughly these probabilities:
+> The year is 2022 A.D. You, now a young professor at MIT, are the instructor for 9.666 (“Computational Cognitive and Molecular Neuroscience”). The class contains many industrious students, but it also has some students who you suspect are, in fact, not studying. In order to determine which students are trying to get by without studying, you decide to set weekly exams. You decide to make most (80%) of the exams easy, and the rest (20%) hard. In either case, you expect that students who study will be more likely to pass the exam than students who do not study, with roughly these probabilities:
 
 | Studied? $$S$$  | Exam is easy? $$E$$ | Pass the exam? $$\mathbb{P}(P \mid S,E)$$ |
 | :-----------:     |:----------------:   | :-------------------------:   |
