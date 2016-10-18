@@ -56,12 +56,12 @@ What is the probability that my sprinkler turned on?
 ~~~~
 
 **(c)**
-My neighbour Kelsey, whose has the same kind of sprinkler, tells me that his lawn was dry that same morning. What is the new posterior probability that it rained?
+My neighbour Kelsey, whose has the same kind of sprinkler, tells me that his lawn was also wet that same morning. What is the new posterior probability that it rained?
 ~~~~
 ~~~~
 
 **(d)**
-To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu reply that their lawns were also dry, but Josh says his was wet. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem).
+To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu and Josh all agree that their lawns were wet too. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem).
 ~~~~
 ~~~~
 
