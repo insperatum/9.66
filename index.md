@@ -24,5 +24,14 @@ custom_css:
 
     {% endif %}
 {% endfor %}
-
 </ol>
+
+<hr/>
+
+Some WebPPL resources and examples:
+
+- [Probmods textbook](http://probmods.org/v2)
+- [WebPPL Documentation](http://docs.webppl.org/en/master/)
+- [Modelling Agents with Probabilistic Programs](http://agentmodels.org)
+- [Design and Implementation of Probabilistic Programs](http://dippl.org)
+- [WebPPL source code](https://github.com/probmods/webppl)
