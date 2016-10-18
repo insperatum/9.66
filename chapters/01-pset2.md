@@ -2,7 +2,7 @@
 layout: chapter
 title: Problem Set 2
 description: Due Thursday, Oct 27
-custom_js: assets/js/buttons.js
+custom_js: assets/js/save_ps2.js
 ---
 
 <script type="text/javascript">autosaveTo = "pset2"</script>

@@ -51,7 +51,7 @@ function init() {
 
 $(document).ready(function() {
 	document.getElementById("exportBtn").onclick = function (){
-		var foo = makeState
+		var foo = makeState()
 	    var data = 'data:application/txt;charset=utf-8,' 
 	                   + encodeURIComponent(foo);
 	    this.href = data;
