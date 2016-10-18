@@ -56,7 +56,7 @@ What is the probability that my sprinkler turned on?
 ~~~~
 
 **(c)**
-My neighbour Kelsey, whose has the same kind of sprinkler, tells me that his lawn was also wet that same morning. What is the new posterior probability that it rained?
+My neighbour Kelsey, whose has the same kind of sprinkler, tells me that her lawn was also wet that same morning. What is the new posterior probability that it rained?
 ~~~~
 ~~~~
 
