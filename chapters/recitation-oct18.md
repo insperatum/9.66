@@ -90,7 +90,7 @@ editor.put("makeModelQuery", makeModelQuery)
 If we wanted to find the probability that Hillary is strong, given that she beats Josh, we could write 
 ~~~~
 var makeModelQuery = editor.get("makeModelQuery")
-var dist = Infer({method:'enumerate'}, makeModelQuery(function(fair, flip1, flip2) {
+var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
 	condition(beats("Hillary", "Josh")
 	return(strong("Hillary"))
 }))
