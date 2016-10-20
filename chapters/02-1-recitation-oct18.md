@@ -1,12 +1,11 @@
 ---
 layout: chapter
 title: Recitation, Oct 18/19
-description: (optional)
+description:
 custom_js: assets/js/save.js
 ---
 
 <script type="text/javascript">autosaveTo = "recitation_oct18"</script>
-
 <div id="autosaveTxt" style="font-style:italic"></div>
 
 # Question 1: Fair coins and biased coins
@@ -61,7 +60,7 @@ My neighbour Kelsey, whose has the same kind of sprinkler, tells me that her law
 ~~~~
 
 **(d)**
-To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu and Josh all agree that their lawns were wet too. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem).
+To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu and Josh, each with the same sprinkler, all agree that their lawns were wet too. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem).
 ~~~~
 ~~~~
 
@@ -71,17 +70,17 @@ Rather than rewrite the model every time we want to make a new query, we can def
 ~~~~
 var makeModelQuery = function(querier) {return function() {
     var strong = mem(function(person) { //Is this person strong?
-    	return flip()
+        return flip()
     })
     var beats = function(personA, personB) { //Given a contest between personA and personB, does personA win?
-    	if(strong(personA) && !strong(personB)) {
-    		return flip(0.8)
-    	} else if(strong(personB) && !strong(personB)) {
-    		return flip(0.2)
-    	} else {
-    		return flip(0.5)
-    	}
-	}
+        if(strong(personA) && !strong(personB)) {
+            return flip(0.8)
+        } else if(strong(personB) && !strong(personA)) {
+            return flip(0.2)
+        } else {
+            return flip(0.5)
+        }
+    }
     return querier(strong, beats)
 }}
 editor.put("makeModelQuery", makeModelQuery)
@@ -91,10 +90,10 @@ If we wanted to find the probability that Hillary is strong, given that she beat
 ~~~~
 var makeModelQuery = editor.get("makeModelQuery")
 var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
-	condition(beats("Hillary", "Josh")
-	return(strong("Hillary"))
+    condition(beats("Hillary", "Josh"))
+    return(strong("Hillary"))
 }))
-return Math.exp(dist.score(true))
+Math.exp(dist.score(true))
 ~~~~
 
 **(a)**

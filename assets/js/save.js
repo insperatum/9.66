@@ -81,6 +81,8 @@ $(document).ready(function() {
 	  alert('The File APIs are not fully supported in this browser.');
 	}
 
-	refreshAutosave()
-	init()
+	if(autosaveTo) {
+		refreshAutosave()
+		init()
+	}
 })
