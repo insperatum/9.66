@@ -45,7 +45,7 @@ If we want to make several different queries on the same underlying model struct
 
 This *querier* is a function which should take as input all variables we might want to condition on or query about — in this case, observations of the two coin flips and whether the coin is fair. We can then reuse *makeModelQuery* as many times as we like, giving different conditioning statements and queries each time. Run the two textboxes in order, noting how `editor.put` and `editor.get` can be used to persist variables between textboxes.
 ~~~~
-var makeModelQuery = function(querier) {function() {
+var makeModelQuery = function(querier) {return function() {
     var fair = flip()
     var p_heads = fair ? 0.5 : 0.9
     var flip1 = flip(p_heads) ? 'H' : 'T'
@@ -82,7 +82,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 **(c)**
 If we want to reason about arbitrary numbers of coin flips we can use `mem`, as below. `mem` stores the output of a random process, which allows us to call a random function multiple times but get the same output if the same input is used. This is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem)
 ~~~~
-var makeModelQuery = function(querier) {function() {
+var makeModelQuery = function(querier) {return function() {
     var fair = flip()
     var p_heads = fair ? 0.5 : 0.9
     var flips = mem(function(i) {
@@ -129,7 +129,7 @@ Find the probability that the next coin will come up 'heads', after observing 4 
 **(a)**
 Based on the information provided above, construct a resuable model to reason about arbitrary sets of students and exams. Use `mem` to store the study habit for each student, and the difficulty for each exam. In the [probmods textbook](https://probmods.org/v2/chapters/04-patterns-of-inference.html#example-trait-attribution) you will find a WebPPL model of a similar setup. You are free to copy/modify this code in this problem set.
 ~~~~
-var makeModelQuery = function(querier) {function() {
+var makeModelQuery = function(querier) {return function() {
 	// Your code here
     querier( /* Some variables here */ )
 }}

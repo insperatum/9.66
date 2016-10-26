@@ -150,7 +150,7 @@ Math.exp(dist.score(true))
 Rather than rewrite the model every time we want to make a new query, we can define a reusable function to build each new model query for us (given a set of conditions or outputs). For example, the code below defines a generic model for reasoning about people's strength in arm wrestling tournaments. For simplicity, each person is assumed to be either strong or weak.
 
 ~~~~
-var makeModelQuery = function(querier) {function() {
+var makeModelQuery = function(querier) {return function() {
     var strong = mem(function(person) { //Is this person strong?
         flip()
     })
