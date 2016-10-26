@@ -7,10 +7,10 @@ hidden: true
 ---
 <script type="text/javascript">autosaveTo = "pset3"</script>
 
-# Question 1: Preliminaries - Function recursing
+# Question 1: Preliminaries
 > You and your friend are playing a game. You roll a dice repeatedly, and count up the sum of the rolls until it reaches *at least* 10. This sum then becomes your score (between 10 and 15).
 
-How can we write out a generative model for this process, to perform inference? Probabilistic programming allows us to build models of structures, such as sequences or trees, by building them up with a recursive function:
+How can we write out a generative model for this process? Probabilistic programming allows us to create models of structures, such as sequences or trees, by building them up with a recursive function:
 ~~~~
 var fairDice = Categorical({vs: [1, 2, 3, 4, 5, 6], ps: [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]})
 var generateFrom = function(sequenceSoFar) {
@@ -31,9 +31,7 @@ var score = sum(sequence)
 print("Score: " + score)
 ~~~~
 
-**(a)**
-
-What is the distribution for your final score in this game?
+**(a)** What is the distribution for your final score in this game?
 ~~~~
 var generateFrom = editor.get("generateFrom")
 var model = function() {
@@ -42,17 +40,13 @@ var model = function() {
 viz(Infer({method:'enumerate'}, model))
 ~~~~
 
-**(b)**
-
-What is the distribution on the total number of times you roll the dice.
+**(b)** What is the distribution on the total number of times you roll the dice.
 
 *Hint: you can make use of the javascript property `length`*
 ~~~~
 ~~~~
 
-**(c)**
-
-What is the distribution of the value of your final roll, given that your score is at least 10?
+**(c)** What is the distribution of the value of your final roll, given that your score is at least 10?
 ~~~~
 ~~~~
 
@@ -73,9 +67,7 @@ To model the stochastic process according to which the dealer operates, you init
 
 *Table 1: Switching probabilities and dealer’s coin weights.*
 
-**(a)**
-
-Write WebPPL code to sample from this generative process, given some number `n` of coin faces. Your code should sample both the dealer's choice of coin and the face each flip lands on.
+**(a)** Write WebPPL code to sample from this generative process, given some number `n` of coin faces. Your code should sample both the dealer's choice of coin and the face each flip lands on.
 ~~~~
 var n = 10
 // Your code here
@@ -84,13 +76,13 @@ print("Coins: " + coins) // Print the dealer's coin choices, as a list of length
 print("Faces: " + faces) // Print the list of coin faces, as a list of length n
 ~~~~
 
-**(b)**
-
-Suppose we observe the following sequence of coin faces:
+**(b)** Suppose we observe the following sequence of coin faces:
 
 `H H H H T H H T T T T`
 
 We are interested in inferring which coin was used for each flip. Using the code you wrote above, use WebPPL to infer the dealer's chosen sequence of coins, conditioned on this sequence of observations. You can use the function `viz.casino` to visualise the marginals of this distribution.
+
+*Hint: You may find the WebPPL function ```map2(f, l1, l2)``` useful for conditioning. This applies the function f to matching elements of lists l1 and l2 - that is, it calls ```fn(l1[0], l2[0])```, ```fn(l1[1], l2[1])```, etc. For those particularly interested, definitions for more useful helper functions can be found in the [WebPPL code](https://github.com/probmods/webppl/blob/dev/src/header.wppl).*
 
 ~~~~
 var observations = ['H', 'H', 'H', 'H', 'T', 'H', 'H', 'T', 'T', 'T', 'T', 'H', 'H']
@@ -103,9 +95,7 @@ var dist = Infer({method:"enumerate"}, model)
 viz.casino(observations, dist)
 ~~~~
 
-**(c)**
-
-Now try copying your code into the box below, to run inference on a longer sequence of observations. 
+**(c)** Now try copying your code into the box below, to run inference on a longer sequence of observations. 
 
 ~~~~
 var observations = ['H', 'H', 'H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'H', 'T', 'T', 'T']
@@ -118,13 +108,11 @@ In such situations, WebPPL has a variety of [inbuilt approximate inference algor
 
 Modify the code above so that `Infer` uses Metropolis Hastings for inference, using 10000 samples. This should be able to generate an approximate posterior within in a few seconds.
 
-**(d)**
-
-When running the code above, you probably see a warning:
+**(d)** When running the code above, you probably see a warning:
 
 `Initialization warning [1/4]: Trace not initialized after 1000 attempts.`
 
-This is because in order to initialise the search, Metropolis-Hastings has to find at least a setting for the random choices which has non-zero posterior probability. It attempts this by sampling from the prior until it lands on a state which satisfies all of the conditions (i.e. until it happens to sample the correct sequence of coin faces). For sequences much longer than the one above, Metropolis-Hastings will fail to initialise.
+This is because in order to initialise the search, Metropolis-Hastings has to find at a setting for the random choices which has non-zero posterior probability. It attempts this by sampling from the prior until it lands on a state which satisfies all of the conditions (i.e. until it happens to sample the correct sequence of coin faces). For sequences much longer than the one above, Metropolis-Hastings will fail to initialise.
 
 We can rewrite the model above to fix this problem. Rather than sampling latent variables for faces solely to condition on their particular values, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observation} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](https://probmods.org/v2/chapters/03-conditioning.html#conditions-observations-and-factors).
 
