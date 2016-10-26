@@ -17,7 +17,7 @@ custom_css:
 
 <ol> 
 {% for p in sorted_pages %}
-    {% if p.layout == 'chapter' %}
+    {% if p.layout == 'chapter' and p.hidden != true %}
     <li><a href="{{ site.baseurl }}{{ p.url }}">{{p.title}}</a><br />
     <em>{{ p.description }}</em>
     </li>

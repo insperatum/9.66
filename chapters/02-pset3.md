@@ -1,8 +1,66 @@
+---
+layout: chapter
+title: Problem Set 3
+description: Due Thursday, Nov 10
+custom_js: assets/js/save.js
+hidden: true
+---
+<script type="text/javascript">autosaveTo = "pset3"</script>
+
+# Question 1: Preliminaries - Function recursing
+> You and your friend are playing a game. You roll a dice repeatedly, and count up the sum of the rolls until it reaches *at least* 10. This sum then becomes your score (between 10 and 15).
+
+How can we write out a generative model for this process, to perform inference? Probabilistic programming allows us to build models of structures, such as sequences or trees, by building them up with a recursive function:
+~~~~
+var fairDice = Categorical({vs: [1, 2, 3, 4, 5, 6], ps: [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]})
+var generateFrom = function(sequenceSoFar) {
+  var roll = sample(fairDice)
+  var sequence = sequenceSoFar.concat(roll)
+  if(sum(sequence) >= 10) {
+    sequence
+  } else {
+    generateFrom(sequence)
+  }
+}
+editor.put("generateFrom", generateFrom)
+
+var sequence = generateFrom([]) // [] is an empty list
+print("Sequence: " + sequence)
+
+var score = sum(sequence)
+print("Score: " + score)
+~~~~
+
+**(a)**
+
+What is the distribution for your final score in this game?
+~~~~
+var generateFrom = editor.get("generateFrom")
+var model = function() {
+  // Your code here
+}
+viz(Infer({method:'enumerate'}, model))
+~~~~
+
+**(b)**
+
+What is the distribution on the total number of times you roll the dice.
+
+*Hint: you can make use of the javascript property `length`*
+~~~~
+~~~~
+
+**(c)**
+
+What is the distribution of the value of your final roll, given that your score is at least 10?
+~~~~
+~~~~
+
 # Question 2: The Casino Dealer Switching Game
 
 > You enter a casino and walk up to a new game table. A suspicious looking dealer flips coins and participants predict whether the coin will land heads or tails. Observing many other players lose their money to the dealer, you notice a strange pattern in the coin flips. You suspect the dealer might be switching between two types of coins. You decide to use your probabilistic modeling skills to predict the next flip and beat the house for the first time.
 
-To model the stochastic process according to which the dealer operates, you initially assume that there’s a fixed probability pswitch that on any given trial, the dealer will switch coins. You make the ‘Markov assumption’ that the dealer’s choice of coin at state k depends only on the coin used at the previous state, k−1, and the fixed probability pswitch. The probabilistic model where the current state of the world depends only on some previous latent state is called a Hidden Markov Model (HMM), since the outcome at the current state only depends on the previous state (Markov) which happens to be latent (or “hidden”). HMMs are widely used in computational biology (e.g. for gene recognition and alignment) and computational linguistics (e.g. for speech recognition and segmentation).
+To model the stochastic process according to which the dealer operates, you initially assume that there’s a fixed probability pswitch that on any given trial, the dealer will switch coins. You make the ‘Markov assumption’ that the dealer’s choice of coin at state t depends only on the coin used at the previous state, t−1, and the fixed probability pswitch. The probabilistic model where the current state of the world depends only on some previous latent state is called a Hidden Markov Model (HMM), since the outcome at the current state only depends on the previous state (Markov) which happens to be latent (or “hidden”). HMMs are widely used in computational biology (e.g. for gene recognition and alignment) and computational linguistics (e.g. for speech recognition and segmentation).
 
 ![HMM](../assets/img/pset2/hmm_dealer_switch.png)
 
@@ -16,36 +74,63 @@ To model the stochastic process according to which the dealer operates, you init
 *Table 1: Switching probabilities and dealer’s coin weights.*
 
 **(a)**
-Write this in WebPPL
+
+Write WebPPL code to sample from this generative process, given some number `n` of coin faces. Your code should sample both the dealer's choice of coin and the face each flip lands on.
+~~~~
+var n = 10
+// Your code here
+
+print("Coins: " + coins) // Print the dealer's coin choices, as a list of length n
+print("Faces: " + faces) // Print the list of coin faces, as a list of length n
+~~~~
+
+**(b)**
+
+Suppose we observe the following sequence of coin faces:
+
+`H H H H T H H T T T T`
+
+We are interested in inferring which coin was used for each flip. Using the code you wrote above, use WebPPL to infer the dealer's chosen sequence of coins, conditioned on this sequence of observations. You can use the function `viz.casino` to visualise the marginals of this distribution.
 
 ~~~~
-var model = function(observations) {
-  var initial_coin_dist = Discrete({ps:[0.5, 0.5]})
-  var coins = [
-    {next_dist: Discrete({ps:[0.85, 0.15]}), face_dist: Discrete({ps:[0.7, 0.3]})},
-    {next_dist: Discrete({ps:[0.15, 0.85]}), face_dist: Discrete({ps:[0.3, 0.7]})}
-  ]
-
-  var initial_coin = sample(initial_coin_dist)
-  var continue_chain = function(chain) {
-    if(chain.length == observations.length) {
-      return chain
-    } else {
-      var last_coin = last(chain)
-      var next_coin = sample(coins[last_coin].next_dist)
-      return continue_chain(chain.concat(next_coin))
-    }
-  }
-  
-  
-  var chain = continue_chain([initial_coin])
-  map2(function(coin, obs) {
-     factor(coins[coin].face_dist.score(obs))
-  }, chain, observations)
-  return chain
+var observations = ['H', 'H', 'H', 'H', 'T', 'H', 'H', 'T', 'T', 'T', 'T', 'H', 'H']
+var model = function() {
+  // Your code here
+  return coins
 }
-var obs = [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0]
-var dist = Infer({method:"MCMC", samples:100, burn:100, lag:100, justSample:true}, function() {return model(obs)})
-var getMarginal = function(i) {return listMean(map(function(sample) {sample.value[i]}, dist.samples))}
-viz.foo(_.range(obs.length), map(getMarginal, _.range(obs.length)), obs)
+editor.put("model", model)
+var dist = Infer({method:"enumerate"}, model)
+viz.casino(observations, dist)
+~~~~
+
+**(c)**
+
+Now try copying your code into the box below, to run inference on a longer sequence of observations. 
+
+~~~~
+var observations = ['H', 'H', 'H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'H', 'T', 'T', 'T']
+// Your code here
+~~~~
+
+You will find that, on this longer sequence, the inference algorithm takes an unreasonably long time to output the posterior distribution. So far, all our calls to `Infer` have used `{method:"enumerate"}`, which calculates exact posterior probabilities by summing over all sequences of random choices that could have been made. For sequences like the one above, this means summing over all $$2^{36}$$ possibilities.
+
+In such situations, WebPPL has a variety of [inbuilt approximate inference algorithms](http://webppl.readthedocs.io/en/master/inference/index.html), which involve sampling latent variables rather than enumerating over all possibilities. One such algorithm is Metropolis-Hastings, which Josh has covered in class.
+
+Modify the code above so that `Infer` uses Metropolis Hastings for inference, using 10000 samples. This should be able to generate an approximate posterior within in a few seconds.
+
+**(d)**
+
+When running the code above, you probably see a warning:
+
+`Initialization warning [1/4]: Trace not initialized after 1000 attempts.`
+
+This is because in order to initialise the search, Metropolis-Hastings has to find at least a setting for the random choices which has non-zero posterior probability. It attempts this by sampling from the prior until it lands on a state which satisfies all of the conditions (i.e. until it happens to sample the correct sequence of coin faces). For sequences much longer than the one above, Metropolis-Hastings will fail to initialise.
+
+We can rewrite the model above to fix this problem. Rather than sampling latent variables for faces solely to condition on their particular values, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observation} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](https://probmods.org/v2/chapters/03-conditioning.html#conditions-observations-and-factors).
+
+In the codebox below, rewrite your model using `observe`, so that inference behaves well with much longer sequences.
+~~~~
+var observations = ['T', 'T', 'H', 'T', 'T', 'T', 'T', 'H', 'T', 'H', 'H', 'H', 'T', 'T',
+                    'T', 'T', 'H', 'T', 'H', 'T', 'T', 'H', 'H', 'H', 'H', 'T', 'T', 'T']
+// Your code here
 ~~~~

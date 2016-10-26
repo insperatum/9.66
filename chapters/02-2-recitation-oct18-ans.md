@@ -13,7 +13,7 @@ custom_js: assets/js/save.js
 
 ~~~~
 var model = function() {
-    return flip() ? 'H' : 'T'
+    flip() ? 'H' : 'T'
 }
 var log_prob = Infer({method:'enumerate'}, model).score('H')
 print(Math.exp(log_prob))
@@ -33,7 +33,7 @@ var model = function() {
     
     condition(flip1 == 'H')
     condition(flip2 == 'H')
-    return(flip3)
+    flip3
 }
 viz(Infer({method:'enumerate'}, model))
 ~~~~
@@ -51,7 +51,7 @@ var model = function() {
     condition(flip1 == 'H')
     condition(flip2 == 'H')
     condition(flip3 == 'H')
-    return(isBiased)
+    isBiased
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score(true))
@@ -68,7 +68,7 @@ var model = function() {
     var flip3 = flip(pHeads) ? 'H' : 'T' 
     
     condition(flip1 != flip2)
-    return(flip3)
+    flip3
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score('H'))
@@ -85,7 +85,7 @@ var model = function() {
   var sprinkler = flip()
   var wet = rain || sprinkler
   condition(wet)
-  return rain
+  rain
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score(true))
@@ -99,7 +99,7 @@ var model = function() {
   var sprinkler = flip()
   var wet = rain || sprinkler
   condition(wet)
-  return sprinkler
+  sprinkler
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score(true))
@@ -117,7 +117,7 @@ var model = function() {
   
   condition(wet)
   condition(wetKelsey)
-  return rain
+  rain
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score(true))
@@ -129,10 +129,10 @@ To investigate further we poll a selection of our friends who live nearby, and a
 var model = function() {
   var rain = flip(0.3)
   var sprinkler = mem(function(person) {
-    return flip()
+    flip()
   })
   var wet = function(person) {
-    return rain || sprinkler(person)
+    rain || sprinkler(person)
   }
 
   condition(wet("me"))
@@ -140,7 +140,7 @@ var model = function() {
   condition(wet("kevin"))
   condition(wet("manu"))
   condition(wet("josh"))
-  return rain
+  rain
 }
 var dist = Infer({method:'enumerate'}, model)
 Math.exp(dist.score(true))
@@ -150,20 +150,20 @@ Math.exp(dist.score(true))
 Rather than rewrite the model every time we want to make a new query, we can define a reusable function to build each new model query for us (given a set of conditions or outputs). For example, the code below defines a generic model for reasoning about people's strength in arm wrestling tournaments. For simplicity, each person is assumed to be either strong or weak.
 
 ~~~~
-var makeModelQuery = function(querier) {return function() {
+var makeModelQuery = function(querier) {function() {
     var strong = mem(function(person) { //Is this person strong?
-        return flip()
+        flip()
     })
     var beats = function(personA, personB) { //Given a contest between personA and personB, does personA win?
         if(strong(personA) && !strong(personB)) {
-            return flip(0.8)
+            flip(0.8)
         } else if(strong(personB) && !strong(personA)) {
-            return flip(0.2)
+            flip(0.2)
         } else {
-            return flip(0.5)
+            flip(0.5)
         }
     }
-    return querier(strong, beats)
+    querier(strong, beats)
 }}
 editor.put("makeModelQuery", makeModelQuery)
 ~~~~ 
@@ -173,7 +173,7 @@ If we wanted to find the probability that Hillary is strong, given that she beat
 var makeModelQuery = editor.get("makeModelQuery")
 var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
     condition(beats("Hillary", "Josh"))
-    return(strong("Hillary"))
+    strong("Hillary")
 }))
 Math.exp(dist.score(true))
 ~~~~
@@ -185,7 +185,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
     condition(beats("Hillary", "Josh"))
     condition(beats("Donald", "Josh"))
-    return(strong("Hillary"))
+    strong("Hillary")
 }))
 Math.exp(dist.score(true))
 ~~~~
@@ -198,7 +198,7 @@ var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
     condition(beats("Kevin", "Luke"))
     condition(beats("Kevin", "Luke"))
     condition(beats("Luke", "Kevin"))
-    return(strong("Kevin"))
+    strong("Kevin")
 }))
 Math.exp(dist.score(true))
 ~~~~
@@ -211,7 +211,7 @@ var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
     condition(beats("Kevin", "Luke"))
     condition(beats("Kevin", "Luke"))
     condition(beats("Luke", "Kevin"))
-    return(beats("Kelsey", "Kevin"))
+    beats("Kelsey", "Kevin")
 }))
 Math.exp(dist.score(true))
 ~~~~

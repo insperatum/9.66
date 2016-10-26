@@ -72086,8 +72086,28 @@ function lineWrapper() {
   }
 }
 
-function foo(df, options) {
+function casino(obss, dist, options) {
+
   options = _.defaults(options || {}, { groupBy: false });
+
+  var probs = dist.toJSON().probs;
+  var support = dist.support();
+
+  var obsVals = _.uniq(obss).sort();
+  var coinVals = _.uniq(_.flatten(support)).sort();
+
+  var ys = _.map(_.range(obss.length), function (i) {
+    var s = 0;
+    for (var j = 0; j < support.length; j++) {
+      s += probs[j] * (support[j][i] == coinVals[1]);
+    }
+    return s;
+  });
+
+  var df = [];
+  for (var i = 0; i < ys.length; i++) {
+    df.push({ x: i, y: ys[i], obs: obsVals.indexOf(obss[i]) });
+  }
 
   var xName = _.keys(df[0])[0];
   var yName = _.keys(df[0])[1];
@@ -72125,10 +72145,12 @@ function foo(df, options) {
     "scales": [{ "name": "xscale", "range": "width",
       "domain": { "data": "table", "field": "x" } }, { "name": "yscale", "range": "height",
       "domainMin": 0, "domainMax": 1 }, { "name": "obsscale", "range": "category10", "type": "ordinal",
-      "domain": { "data": "table", "field": "obs" } }, { "name": "obsnamescale", "range": ["Tails", "Heads"], "type": "ordinal",
+      "domain": { "data": "table", "field": "obs" } }, { "name": "obsnamescale", "range": _.map(obsVals, function (x) {
+        return x.toString();
+      }), "type": "ordinal",
       "domain": [0, 1] }],
 
-    "axes": [{ "type": "x", "scale": "xscale", "title": "i" }, { "type": "y", "scale": "yscale", "title": "P( Coin i is Coin 1 | Observations )" }],
+    "axes": [{ "type": "x", "scale": "xscale", "title": "t" }, { "type": "y", "scale": "yscale", "title": "P( Coin[t] = " + coinVals[1] + " | Observations )" }],
 
     "marks": [{ "type": "line",
       "from": { "data": "table" },
@@ -72186,24 +72208,6 @@ function foo(df, options) {
   });
 
   // renderSpec(vgSpec, options);
-}
-
-function fooWrapper() {
-  var args = _.toArray(arguments);
-  if (isDataFrame(arguments[0])) {
-    foo.apply(null, arguments);
-  } else {
-    var xs = args[0];
-    var ys = args[1];
-    var obss = args[2];
-
-    var df = [];
-    for (var i = 0, ii = xs.length; i < ii; i++) {
-      df.push({ x: xs[i], y: ys[i], obs: obss[i] });
-    }
-
-    foo.apply(null, [df].concat(args.slice(3)));
-  }
 }
 
 // visualize an erp as a table
@@ -72341,7 +72345,7 @@ var vizExtensions = {
   scatter: scatterWrapper,
   density: density,
   line: lineWrapper,
-  foo: fooWrapper,
+  casino: casino,
   table: table,
   parCoords: parallelCoordinates,
   heatMap: heatMap,
