@@ -166,7 +166,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 
 Explain why the changes you see go in the direction they do.
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(d)**
 In addition to knowing how all the students did on exams 1 and 2, you now find out that students 2 and 3 failed exams 3 and 4 as well. How does this change the probability that exam 1 is easy? How does it change the probability that student 1 is a studier?
@@ -177,7 +177,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 
 Explain why you observe the changes that you do.
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 
 **(e)**
@@ -188,13 +188,13 @@ var makeModelQuery = editor.get("makeModelQuery")
 ~~~~
 Do they change significantly from your answer in part (d)? Why or why not?
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(f)** Find a friend and describe the situation in this problem (3 students, 4 exams, 50% likelihood of studying and 80% easy exams, and the probabilities given in the table above). For each of parts (b) through (e), ask for their intuitive judgments about how the changes made would alter the probability that student 1 is a studier and that exam 1 is hard. To make it easier for your subject to give consistent judgments, you should first ask them about the direction of change that they expect for each probability (up, down or no change) after each piece of information, and then ask them to give their best numerical guess for that probability.
 
 Record your subject's answers for each of parts (b)–(e). Compare these answers to the performance of your Bayesian network model, both qualitatively (do the judgments shift in the right direction?) and quantitatively (how close are the numerical judgments to the correct probabilities?). If there are there any differences, can you identify any general trends or patterns? Why do you think you see those differences? Do your own gut instincts look similar to your subjects judgments?
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(g)**
 Redo parts (b)–(e) using a different value for the prior probability of an exam being easy and the prior probability of a student being a studier, and submit the results. (Find a prior that does have at least some effect.)
@@ -204,7 +204,7 @@ Redo parts (b)–(e) using a different value for the prior probability of an exa
 
 What role do these priors have on the assessments of student A and exam 1? In general, does changing the priors result in a qualitative or simply a quantitative shift in the output of the Bayes net? In particular, consider the explaining away effect that occurs between (b) and (c) for the probability that student 1 is a studier. How does this effect depend on the prior probabilities, and why?
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(h)**
 Now we’re going to put priors on our priors. 
@@ -219,7 +219,7 @@ Repeat the inferences in parts (b)–(e), but this time calculate the posterior 
 
 Explain the qualitative shifts between these posteriors in (b)–(e): concretely, a trend in parts (b)–(d) is reversed in part (e). What and why is this trend, and why is it reversed?
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea>
+<textarea class="textAnswer" rows="8" cols="80"></textarea>
 
 *Note: You can take out these “priors on priors” for the next part.*
 
@@ -234,7 +234,7 @@ Devise an a small extension of these models which better reflects your intuitive
 
 Does your intuition match the model predictions? Why do you think your new model does or does not capture your own judgments?
 
-<textarea class="textAnswer" rows="8" cols="50"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 
 

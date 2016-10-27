@@ -72090,19 +72090,26 @@ function casino(obss, dist, options) {
 
   options = _.defaults(options || {}, { groupBy: false });
 
-  var probs = dist.toJSON().probs;
-  var support = dist.support();
+  if (_.isArray(dist)) {
+    obsVals = _.uniq(obss).sort();
+    coinVals = ["Coin 1", "Coin 2"];
 
-  var obsVals = _.uniq(obss).sort();
-  var coinVals = _.uniq(_.flatten(support)).sort();
+    ys = dist;
+  } else {
+    probs = dist.toJSON().probs;
+    support = dist.support();
 
-  var ys = _.map(_.range(obss.length), function (i) {
-    var s = 0;
-    for (var j = 0; j < support.length; j++) {
-      s += probs[j] * (support[j][i] == coinVals[1]);
-    }
-    return s;
-  });
+    obsVals = _.uniq(obss).sort();
+    coinVals = _.uniq(_.flatten(support)).sort();
+
+    ys = _.map(_.range(obss.length), function (i) {
+      var s = 0;
+      for (var j = 0; j < support.length; j++) {
+        s += probs[j] * (support[j][i] == coinVals[0]);
+      }
+      return s;
+    });
+  }
 
   var df = [];
   for (var i = 0; i < ys.length; i++) {
@@ -72150,7 +72157,7 @@ function casino(obss, dist, options) {
       }), "type": "ordinal",
       "domain": [0, 1] }],
 
-    "axes": [{ "type": "x", "scale": "xscale", "title": "t" }, { "type": "y", "scale": "yscale", "title": "P( Coin[t] = " + coinVals[1] + " | Observations )" }],
+    "axes": [{ "type": "x", "scale": "xscale", "title": "t" }, { "type": "y", "scale": "yscale", "title": "P( Coin[t] = " + coinVals[0] + " | Observations )" }],
 
     "marks": [{ "type": "line",
       "from": { "data": "table" },
