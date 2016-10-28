@@ -3,9 +3,9 @@ layout: chapter
 title: Problem Set 3
 description: Due Thursday, Nov 10
 custom_js: assets/js/save.js
-hidden: true
+hidden: false
 ---
-<script type="text/javascript">autosaveTo = "pset3_v3"</script>
+<script type="text/javascript">autosaveTo = "pset3_v5"</script>
 <div id="autosaveTxt" style="font-style:italic"></div>
 
 # Question 1: Preliminaries
@@ -18,9 +18,9 @@ var generateFrom = function(sequenceSoFar) {
   var roll = sample(fairDice)
   var sequence = sequenceSoFar.concat(roll)
   if(sum(sequence) >= 10) {
-    sequence
+    return sequence
   } else {
-    generateFrom(sequence)
+    return generateFrom(sequence)
   }
 }
 editor.put("generateFrom", generateFrom)
@@ -47,7 +47,7 @@ viz(Infer({method:'enumerate'}, model))
 ~~~~
 ~~~~
 
-**(c)** What is the distribution of the value of your final roll, given that your score is at least 10?
+**(c)** What is the distribution of the value of your final roll, given that your score is at least 13?
 ~~~~
 ~~~~
 
@@ -69,8 +69,11 @@ To model the stochastic process according to which the dealer operates, you init
 *Table 1: Switching probabilities and dealer’s coin weights.*
 
 **(a)** Write WebPPL code to sample from this generative process, given some number `n` of coin faces. Your code should sample both the dealer's choice of coin and the face each flip lands on.
+
+*Hint: Your recursive function needs to output both the sequence of coins and the sequence of faces. One way to do this is to return a two element list `[coins, faces]`. Another way is to return an javascript object `{coins:coins, faces:faces}`, where the two elements can then be referenced using `x.coins` and `x.faces`.*
+
 ~~~~
-var n = 10
+var n = 32
 // Your code here
 
 print("Coins: " + coins) // Print the dealer's coin choices, as a list of length n
@@ -79,14 +82,14 @@ print("Faces: " + faces) // Print the list of coin faces, as a list of length n
 
 **(b)** Suppose we observe the following sequence of coin faces:
 
-`H H H H T H H T T T T`
+`H H H H T H H T`
 
 We are interested in inferring which coin was used for each flip. Using the code you wrote above, use WebPPL to infer the dealer's chosen sequence of coins, conditioned on this sequence of observations. You can use the function `viz.casino` to visualise the marginals of this distribution.
 
-*Hint: You may find the WebPPL function ```map2(f, l1, l2)``` useful for conditioning. This applies the function f to matching elements of lists l1 and l2 - that is, it calls ```fn(l1[0], l2[0])```, ```fn(l1[1], l2[1])```, etc. For those particularly interested, definitions for more useful helper functions can be found in the [WebPPL code](https://github.com/probmods/webppl/blob/dev/src/header.wppl).*
+*Hint: WebPPL includes the [underscore.js](http://underscorejs.org/) library. When conditioning, you may find the function ```_.isEqual(list1, list2)``` useful to check equality of two lists.*
 
 ~~~~
-var observations = ['H', 'H', 'H', 'H', 'T', 'H', 'H', 'T', 'T', 'T', 'T', 'H', 'H']
+var observations = ['H', 'H', 'H', 'H', 'T', 'H', 'H', 'T']
 var model = function() {
   // Your code here
   return coins
@@ -98,15 +101,15 @@ viz.casino(observations, dist)
 **(c)** Now try copying your code into the box below, to run inference on a longer sequence of observations. 
 
 ~~~~
-var observations = ['H', 'H', 'H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'H', 'T', 'T', 'T']
+var observations = ['H', 'H', 'H', 'H', 'H', 'T', 'T', 'T', 'T', 'H', 'T', 'H', 'H', 'H', 'H']
 // Your code here
 ~~~~
 
-You will find that, on this longer sequence, the inference algorithm takes an unreasonably long time to output the posterior distribution. So far, all our calls to `Infer` have used `{method:"enumerate"}`, which calculates exact posterior probabilities by summing over all sequences of random choices that could have been made. For sequences like the one above, this means summing over all $$2^{36}$$ possibilities.
+You will find that, on this longer sequence, the inference algorithm takes an unreasonably long time to output the posterior distribution. So far, all our calls to `Infer` have used `{method:"enumerate"}`, which calculates exact posterior probabilities by summing over all sequences of random choices that could have been made. For sequences like the one above, this means summing over all $$2^{30}$$ possibilities.
 
 In such situations, WebPPL has a variety of [inbuilt approximate inference algorithms](http://webppl.readthedocs.io/en/master/inference/index.html), which involve sampling latent variables rather than enumerating over all possibilities. One such algorithm is Metropolis-Hastings, which Josh has covered in class.
 
-Modify the code above so that `Infer` uses Metropolis Hastings for inference, using 10000 samples. This should be able to generate an approximate posterior within in a few seconds.
+Modify the code above so that `Infer` uses MCMC for inference, using 50000 samples. This should be able to generate an approximate posterior within in a few seconds. If you like, you can visualise MCMC progress by adding the Infer option ```callbacks: [editor.MCMCProgress()]```.
 
 **(d)** When running the code above, you probably see a warning:
 
@@ -114,9 +117,10 @@ Modify the code above so that `Infer` uses Metropolis Hastings for inference, us
 
 This is because in order to initialise the search, Metropolis-Hastings has to find at a setting for the random choices which has non-zero posterior probability. It attempts this by sampling from the prior until it lands on a state which satisfies all of the conditions (i.e. until it happens to sample the correct sequence of coin faces). For sequences much longer than the one above, Metropolis-Hastings will fail to initialise.
 
-We can rewrite the model above to fix this problem. Rather than sampling latent variables for faces solely to condition on their particular values, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observation} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](https://probmods.org/v2/chapters/03-conditioning.html#conditions-observations-and-factors).
+We can rewrite the model above to fix this problem. Rather than sampling a face solely to condition it to equal some particular value, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observed face} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](https://probmods.org/v2/chapters/03-conditioning.html#conditions-observations-and-factors).
 
-In the codebox below, rewrite your model using `observe`, so that inference behaves well with much longer sequences.
+In the codebox below, rewrite your model so that inference behaves well with even longer sequences. Instead of sampling faces, your recursive function should output only a sequence of coins and call `observe` once for each coin it samples. *Hint: you may want to use either a [Bernoulli Distribution](http://docs.webppl.org/en/master/distributions.html#Bernoulli) or a [Categorical Distribution](http://docs.webppl.org/en/master/distributions.html#Categorical) for your observations*.
+
 ~~~~
 var observations = ['H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'T', 'H', 'H', 'H',
                     'T', 'H', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'H', 'H', 'T', 'T']
@@ -125,27 +129,29 @@ var observations = ['H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 
 
 # Question 3: Testing and fitting the model to human data
 
-To make answering this question easier, it might help to add a wrapper to the model above that lets us vary the observations and parameters. You can use the box below to do this, and check that it works by repeating the inference in 2d (you should get approximately the same posterior).
+In this question we will vary the parameters of your model, and compare its predictions to human data. If you like, it might help to add a wrapper to the model above that lets you reuse the same code for different observations or parameters. You can use the box below to do this, and check that it works by repeating the inference in 2d (you should get approximately the same posterior).
 
 ~~~~
-var makeModelQuery = function(pSwitch_12, pSwitch_21, pHeads_1, pHeads_2, observations) { return function() { return function() {
-    // Your model code here
+var makeModelQuery = function(pSwitch_12, pSwitch_21, pHeads_1, pHeads_2, observations) { return function() {
+    // Your model code here, using
+    // pSwitch_12, pSwitch_21, pHeads_1, pHeads_2, observations
+
     return coins
-}}}
+}}
 editor.put("makeModelQuery", makeModelQuery)
 
-var observations = ['H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'T', 'H', 'H', 'H',
-                    'T', 'H', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'H', 'H', 'T', 'T']
-var model = makeModelQuery(0.15, 0.15, 0.3, 0.7, observations)
-
+// Usage example:
+var obss = ['H', 'H', 'H', 'T', 'T', 'T', 'T', 'T', 'T', 'H', 'H', 'H', 'T', 'H', 'H', 'H',
+            'T', 'H', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'T', 'T', 'H', 'H', 'H', 'T', 'T']
+var model = makeModelQuery(0.15, 0.15, 0.3, 0.7, obss)
 // Your Infer code here
 ~~~~
 
 **(a)** *(i)*
-Next, sample a sequence from a model with parameter settings as in Table 1 (you may also use the sequence above). We’ll call the model that uses the settings from Table 1 the "generating model", since it is the model according to which sequences were produced. Now use a different model — the "parsing model" — for inference (to ‘parse’ the sequence), where the switching probabilities and coin weights are different than Table 1. First, keep $$p_{switch}$$ of the parsing model the same as the generating model, but vary the coin weights. Second, keep the coin weights the same as the generating model, but vary $$p_{switch}$$ in the parsing model. What happens in these two scenarios? Describe how differences between the switching probabilities and coin weights of the generating versus parsing model affect the inferences you get, and the errors made by the model.
+Use 2(a) to sample a sequence of faces from a model with parameter settings in Table 1 (you may also use the sequence above, or a shorter subsequence if you were unable to complete 2d). We’ll call the model that uses the settings from Table 1 the "generating model", since it is the model according to which sequences were produced. Now use a different model — the "parsing model" — for inference (to ‘parse’ the sequence), where the switching probabilities and coin weights are different than Table 1. First, keep $$p_{switch}$$ of the parsing model the same as the generating model, but vary the coin weights. Second, keep the coin weights the same as the generating model, but vary $$p_{switch}$$ in the parsing model. What happens in these two scenarios? Describe how differences between the switching probabilities and coin weights of the generating versus parsing model affect the inferences you get, and the errors made by the model.
 
 ~~~~
-makeModelQuery = editor.get("makeModelQuery")
+var makeModelQuery = editor.get("makeModelQuery")
 // Your code here
 ~~~~
 
