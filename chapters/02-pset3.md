@@ -1,7 +1,7 @@
 ---
 layout: chapter
 title: Problem Set 3
-description: Due Thursday, Nov 10
+description: Due Tuesday, Nov 15
 custom_js: assets/js/save.js
 hidden: false
 ---
