@@ -71848,6 +71848,45 @@ function scatter(df, options) {
   renderSpec(vlSpec, options);
 }
 
+
+function scatterShapes(df, options) {
+
+  options = _.defaults(options || {}, { groupBy: false
+  });
+
+  var xName = _.keys(df[0])[0];
+  var yName = _.keys(df[0])[1];
+
+  var vlSpec = {
+    "data": { "values": df },
+    "mark": "point",
+    "encoding": {
+      "x": { "field": xName, "type": "quantitative", axis: { title: options.xName } },
+      "y": { "field": yName, "type": "quantitative", axis: { title: options.yName } },
+      "shape": {
+        "legend": false,
+        "field": "shape",
+        "type": "nominal",
+        "scale": {
+          "domain": ["square","circle","triangle"],
+          "range": ["square", "circle", "triangle-up"]
+      }},
+      "color": {
+        "legend": false,
+        "field": "color",
+        "type": "nominal",
+        "scale": {
+          "domain": ["red","green","blue"],
+          "range": ["red","green","blue"]
+      }},
+    }
+  };
+
+  renderSpec(vlSpec, options);
+}
+
+
+
 function scatterWrapper() {
   var args = _.toArray(arguments);
 
@@ -71863,6 +71902,26 @@ function scatterWrapper() {
     }
 
     scatter.apply(null, [df].concat(args.slice(2)));
+  }
+}
+
+function scatterShapesWrapper() {
+  var args = _.toArray(arguments);
+
+  if (isDataFrame(arguments[0])) {
+    scatterShapes.apply(null, args);
+  } else {
+    var xs = args[0];
+    var ys = args[1];
+    var shapes = args[2];
+    var colors = args[3];
+
+    var df = [];
+    for (var i = 0, ii = xs.length; i < ii; i++) {
+      df.push({ x: xs[i], y: ys[i], shape:shapes[i], color:colors[i]});
+    }
+
+    scatterShapes.apply(null, [df].concat(args.slice(4)));
   }
 }
 
@@ -72350,6 +72409,7 @@ var vizExtensions = {
   bar: barWrapper,
   hist: hist,
   scatter: scatterWrapper,
+  scatterShapes: scatterShapesWrapper,
   density: density,
   line: lineWrapper,
   casino: casino,

@@ -27,7 +27,7 @@ function stopAnim() {
 }
 
 var SCALE = 30; // 1 meter = 30 pixels
-var worldWidth = 350;
+var worldWidth = 600;
 var worldHeight = 500;
 
 var  b2World = Box2D.Dynamics.b2World,
