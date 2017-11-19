@@ -1,7 +1,7 @@
 ---
 layout: chapter
-title: Recitation, Oct 18/19
-description:
+title: Recitation, Oct 17/18
+description: Useful webppl methods for pset 2
 custom_js: assets/js/save.js
 ---
 

@@ -1,12 +1,13 @@
 ---
 layout: chapter
+hidden: false
 title: Problem Set 2
-description: Due Thursday, Oct 27
+description: Due Friday, Oct 27 6pm
 custom_js: assets/js/save_ps2.js
 ---
 
 <script type="text/javascript">autosaveTo = "pset2"</script>
-**Due Thursday, Oct 27**
+**Due Friday, Oct 27**
 
 All questions in this problem set can be solved using WebPPL, which may be written and executed directly inside textboxes on this page. These textboxes save their state in your browser's cache, so you can edit them, close the window, and return again later (as long as you do not clear your cache). To save a copy of your work to your machine, use the export button at the bottom of this page. We recommend doing this regularly to ensure you do not lose any of your work. To import this saved work, there is an import button at the bottom of the page. To submit your work, click the export button and then upload the result to stellar.
 

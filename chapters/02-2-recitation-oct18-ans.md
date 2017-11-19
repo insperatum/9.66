@@ -1,6 +1,7 @@
 ---
 layout: chapter
-title: Answers for recitation, Oct 18/19
+hidden: false
+title: Answers for recitation, Oct 17/18
 description:
 custom_js: assets/js/save.js
 ---

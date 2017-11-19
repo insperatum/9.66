@@ -30,7 +30,7 @@ custom_css:
 
 Some WebPPL resources and examples:
 
-- [Probmods textbook](http://probmods.org/v2)
+- [Probmods textbook](http://probmods.org/)
 - [WebPPL Documentation](http://docs.webppl.org/en/master/)
 - [Modelling Agents with Probabilistic Programs](http://agentmodels.org)
 - [Design and Implementation of Probabilistic Programs](http://dippl.org)
