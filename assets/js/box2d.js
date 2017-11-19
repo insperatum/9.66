@@ -6014,27 +6014,36 @@ Box2D.postDefs = [];
             for (f = b.GetFixtureList();
             f; f = f.m_next) {
                s = f.GetShape();
-               /*if (b.IsActive() == false) {
-                  color.Set(0.5, 0.5, 0.3);
+               if (b.GetType() == b2Body.b2_staticBody) {
+                  color.Set(0.8, 0.8, 0.8);
+                  this.DrawShape(s, xf, color);
+               } else {
+                  color.Set(f.color[0], f.color[1], f.color[2]);
                   this.DrawShape(s, xf, color);
                }
-               else*/ if (b.GetType() == b2Body.b2_staticBody) {
-                  color.Set(0.5, 0.9, 0.5);
-                  this.DrawShape(s, xf, color);
-               }
-               else if (b.GetType() == b2Body.b2_kinematicBody) {
-                  color.Set(0.5, 0.5, 0.9);
-                  this.DrawShape(s, xf, color);
-               }
-               /*else if (b.IsAwake() == false) {
-                  color.Set(0.6, 0.6, 0.6);
-                  this.DrawShape(s, xf, color);
-               }*/
-               else {
-                  //color.Set(0.9, 0.7, 0.7);
-                  color.Set(0.5, 0.5, 0.9);
-                  this.DrawShape(s, xf, color);
-               }
+
+
+               // /*if (b.IsActive() == false) {
+               //    color.Set(0.5, 0.5, 0.3);
+               //    this.DrawShape(s, xf, color);
+               // }
+               // else*/ if (b.GetType() == b2Body.b2_staticBody) {
+               //    color.Set(0.5, 0.9, 0.5);
+               //    this.DrawShape(s, xf, color);
+               // }
+               // else if (b.GetType() == b2Body.b2_kinematicBody) {
+               //    color.Set(0.5, 0.5, 0.9);
+               //    this.DrawShape(s, xf, color);
+               // }
+               // /*else if (b.IsAwake() == false) {
+               //    color.Set(0.6, 0.6, 0.6);
+               //    this.DrawShape(s, xf, color);
+               // }*/
+               // else {
+               //    //color.Set(0.9, 0.7, 0.7);
+               //    color.Set(0.5, 0.5, 0.9);
+               //    this.DrawShape(s, xf, color);
+               // }
             }
          }
       }

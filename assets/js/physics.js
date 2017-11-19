@@ -84,6 +84,9 @@ function clearWorld() {
   }
 }
 
+
+
+
 function applyWorld(initialWorld) {
   var worldList = initialWorld;
   _.each(
@@ -91,24 +94,51 @@ function applyWorld(initialWorld) {
     function(obj){
       var shape = obj.shape,
           dims = obj.dims,
-          velocity = obj.velocity || [0,0];
+          velocity = obj.velocity || [0,0]
+      var colorMap = {
+        'red':[1,0.2,0.2],
+        'green':[0,1,0],
+        'blue':[0,1,1]
+      }
+      var color = [0,1,0]
+      if(obj.color != undefined) {
+        if(obj.color in colorMap) {
+          color = colorMap[obj.color] 
+        } else {
+          // console.log("Unknown color: " + obj.color)
+        }
+      }
       bodyDef.type = obj.static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
       if (shape == "circle") {
         var r = dims[0] / SCALE;
         fixDef.shape = new b2CircleShape(r);
+        // console.log("fixDef:", JSON.stringify(fixDef))
       } else if (shape == "rect") {
         var w = dims[0] / SCALE;
         var h = dims[1] / SCALE;
         fixDef.shape = new b2PolygonShape;
         fixDef.shape.SetAsBox(w, h);
+        // console.log("fixDef:", JSON.stringify(fixDef))
+      } else if (shape == "triangle") {
+        fixDef.shape = new b2PolygonShape;
+        var d = dims[0] / SCALE;
+        fixDef.shape.SetAsArray([
+          new b2Vec2(d * Math.cos(0), d * Math.sin(0)),
+          new b2Vec2(d * Math.cos(2*Math.PI/3), d * Math.sin(2*Math.PI/3)),
+          new b2Vec2(d * Math.cos(-2*Math.PI/3), d * Math.sin(-2*Math.PI/3))
+        ]);
+        fixDef.shape.foo=189
       } else {
         throw new Error('unknown shape ' + shape);
       }
+
+
       bodyDef.position.x = obj.x / SCALE;
       bodyDef.position.y = obj.y / SCALE;
       bodyDef.linearVelocity.x = velocity[0] / SCALE;
       bodyDef.linearVelocity.y = velocity[1] / SCALE;
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      var f = world.CreateBody(bodyDef).CreateFixture(fixDef);
+      f.color = color
     }
   )
   return initialWorld;
@@ -159,7 +189,9 @@ function churchWorld_from_bodyList(body) {
                     static: isStatic,
                     dims: dims,
                     x: x,
-                    y: y});
+                    y: y,
+                    vx: body.GetLinearVelocity().x * SCALE,
+                    vy: body.GetLinearVelocity().y * SCALE});
     body = body.GetNext();
   }
   return worldList;
@@ -232,8 +264,8 @@ physics.animate = function(steps, initialWorld) {
     var debugDraw = new b2DebugDraw();
     debugDraw.SetSprite(canvas[0].getContext("2d"));
     debugDraw.SetDrawScale(SCALE);
-    debugDraw.SetFillAlpha(0.3);
-    debugDraw.SetLineThickness(1.0);
+    debugDraw.SetFillAlpha(1);
+    debugDraw.SetLineThickness(0);
     debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
     world.SetDebugDraw(debugDraw);
 
