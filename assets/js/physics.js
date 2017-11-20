@@ -127,7 +127,7 @@ function applyWorld(initialWorld) {
         fixDef.shape.SetAsBox(w, h);
         bodyDef.angularDamping=[0.1, 0.1, 0.4, 0.1][colorIndex];
         // console.log("fixDef:", JSON.stringify(fixDef))
-        bodyDef.angle=Math.random()+Math.PI/3
+        bodyDef.angle=0//Math.random()+Math.PI/3
       } else if (shape == "triangle") {
         fixDef.shape = new b2PolygonShape;
         fixDef.friction = [0.6, 0.1, 0.4, 0.065][colorIndex]; //0.2
@@ -139,7 +139,7 @@ function applyWorld(initialWorld) {
           new b2Vec2(d * Math.cos(-2*Math.PI/3), d * Math.sin(-2*Math.PI/3))
         ]);
         bodyDef.angularDamping=[0.3, 0.1, 0.4, 0.1][colorIndex];
-        bodyDef.angle=Math.random()
+        bodyDef.angle=0//Math.random()
       } else if (shape == "pentagon") {
         fixDef.shape = new b2PolygonShape;
         fixDef.friction = [0.6, 0.1, 0.1, 0.1][colorIndex];
@@ -226,8 +226,8 @@ function churchWorld_from_bodyList(body) {
                     dims: dims,
                     x: x,
                     y: y,
-                    vx: body.GetLinearVelocity().x * SCALE,
-                    vy: body.GetLinearVelocity().y * SCALE});
+                    velocity: [body.GetLinearVelocity().x * SCALE,
+                      body.GetLinearVelocity().y * SCALE]});
     body = body.GetNext();
   }
   return worldList;
