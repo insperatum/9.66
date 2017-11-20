@@ -71857,28 +71857,38 @@ function scatterShapes(df, options) {
   var xName = _.keys(df[0])[0];
   var yName = _.keys(df[0])[1];
 
+
   var vlSpec = {
     "data": { "values": df },
     "mark": "point",
     "encoding": {
-      "x": { "field": xName, "type": "quantitative", axis: { title: options.xName } },
-      "y": { "field": yName, "type": "quantitative", axis: { title: options.yName } },
+      "x": {
+        "field": xName,
+        "type": "quantitative",
+        axis: { title: options.xName },
+        "scale": {"domain": options.xBounds}},
+      "y": {
+        "field": yName,
+        "type": "quantitative",
+        axis: { title: options.yName },
+        "scale": {"domain": options.yBounds}},
       "shape": {
         "legend": false,
         "field": "shape",
         "type": "nominal",
         "scale": {
-          "domain": ["square","circle","triangle"],
-          "range": ["square", "circle", "triangle-up"]
+          "domain": ["square","circle","triangle", "cross"],
+          "range": ["square", "circle", "triangle-up", "cross"]
       }},
       "color": {
         "legend": false,
         "field": "color",
         "type": "nominal",
         "scale": {
-          "domain": ["red","green","blue"],
-          "range": ["red","green","blue"]
+          "domain": ["red","green","blue","orange","pink","purple","yellow"],
+          "range": ["red","green","blue","orange","pink","purple","#cccc00"]
       }},
+      "opacity": {"value": 0.5}
     }
   };
 
