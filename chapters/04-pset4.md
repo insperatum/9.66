@@ -250,6 +250,10 @@ In two sentences, comment on the patterns that you see.
 
 > **b) Setting up our model**
 
+hello
+<img src="/images/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
+why
+
 ~~~
 var makeModelQuery = function(data, shapes, colors, maxClasses){
   
