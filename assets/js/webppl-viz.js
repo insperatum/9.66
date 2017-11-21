@@ -71888,7 +71888,7 @@ function scatterShapes(df, options) {
           "domain": ["red","green","blue","orange","pink","purple","yellow"],
           "range": ["red","green","blue","orange","pink","purple","#cccc00"]
       }},
-      "opacity": {"value": 0.5}
+      "opacity": {"value": 0.4}
     }
   };
 
