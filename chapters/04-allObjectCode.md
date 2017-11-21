@@ -45,11 +45,21 @@ var tower = {shape: 'rect',
   color: 'red'
 }
 
+var ball = {
+  shape: 'circle',
+  static: false,
+  dims: [40],
+  x: worldWidth/2-100,
+  y:worldHeight-50,
+  color: 'blue',
+  velocity: [600,0]
+}
+
 //Defining the world. 
 //Note that the state of the world is completely defined by a list of shapes:
 var initialWorld = [ground, tower] 
 //Simulating and animating the world
-physics.animate(1000, initialWorld); 
+physics.animate(1000, initialWorld.concat(ball)); 
 ~~~
 
 > **b) Measuring motion**
