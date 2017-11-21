@@ -112,8 +112,8 @@ function applyWorld(initialWorld) {
       bodyDef.type = obj.static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
       if (shape == "circle") {
         var r = dims[0] / SCALE;
-        fixDef.friction = [0.7, 1, 3, 0.7][colorIndex]; //0.2
-        fixDef.restitution = [0.5, 0.3, 0.01, 0.5][colorIndex]; //0.1
+        fixDef.friction = [0.7, 1, 2, 0.7][colorIndex]; //0.2
+        fixDef.restitution = [0.5, 0.3, 0.02, 0.5][colorIndex]; //0.1
         fixDef.shape = new b2CircleShape(r);
         bodyDef.angularDamping=[1.3, 1.8, 3, 1.3][colorIndex];
         // console.log("fixDef:", JSON.stringify(fixDef))
