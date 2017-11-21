@@ -250,7 +250,7 @@ In two sentences, comment on the patterns that you see.
 
 > **b) Setting up our model**
 
-<img src="/images/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
+<img src="/assets/img/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
 
 ~~~
 var makeModelQuery = function(data, shapes, colors){
