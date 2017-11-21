@@ -68,7 +68,7 @@ In order to learn about objects, we need some way of gathering data from the wor
 
 To do this, we need to simulate the world state at multiple time points, then read off the motion data at each time point. For this, we will use `physics.run(t, initialWorld)`, which returns the world state at time $$t$$. Just as `initialWorld` is a list of shapes, the output of `physics.run` is a list of shapes. 
 
-**i)** First, define a green sliding box with initial position `worldWidth/2-100` and initial velocity `[500,0]`. Then, complete the simulation code by a) defining a list of times from 0 to 500 in steps of 20, by using [_.range](http://underscorejs.org/#range); b) fill in the [map](http://docs.webppl.org/en/master/functions/arrays.html) to return a list of world states at the specified time points.
+**i)** First, define a green sliding box with initial $$x$$ position `worldWidth/2-100` and initial velocity `[500,0]`. Then, complete the simulation code by a) defining a list of times from 0 to 500 in steps of 20, by using [_.range](http://underscorejs.org/#range); b) fill in the [map](http://docs.webppl.org/en/master/functions/arrays.html) to return a list of world states at the specified time points.
 ~~~
 //Shape definitions:
 var ground = {shape: 'rect',
@@ -80,16 +80,22 @@ var ground = {shape: 'rect',
 }
 
 var slidingBox = { 
-  /*your code here*/
+  shape: 'square',
+  static: false,
+  dims: [20],
+  x: worldWidth/2-100,
+  y: worldHeight-30,
+  velocity: [500,0],
+  color:'green'
 }
 
 //Defining the world:
 var initialWorld = [ground, slidingBox]
 
 //Simulate the world state at several different time points
-var times = /* your code here */
+var times = _.range(0,500,20)
 var worlds_t = map(function(t){
-  var world_t = /* your code here */
+  var world_t = physics.run(t,initialWorld)
   return world_t
 },times)
 
@@ -112,15 +118,22 @@ var positions = map(function(i){
 },_.range(worlds_t.length))
 console.log(JSON.stringify(positions))
 
-var velocities = /* your code here */ 
+var velocities = map(function(i){
+  var slidingBoxState = worlds_t[i][0] //last shape in initialWorld is first shape in world_t! 
+  var velocity_t = {x:slidingBoxState.velocity[0], y:slidingBoxState.velocity[1]}
+  return velocity_t
+},_.range(worlds_t.length))
+console.log(JSON.stringify(velocities))
 
 console.log('X position over time for slidingBox:')
 viz.line(times, map(function(position){return position.x}, positions))
 console.log('Y position over time for slidingBox:')
 viz.line(times, map(function(position){return position.y}, positions))
 
-/*your visualization code for velocity here*/
-
+console.log('X velocity over time for slidingBox:')
+viz.line(times, map(function(velocity){return velocity.x}, velocities))
+console.log('Y velocity over time for slidingBox:')
+viz.line(times, map(function(velocity){return velocity.y}, velocities))
 ~~~
 
 **iii)** The webppl function `find`. The first argument of `find` is a "test" function with one argument that returns a boolean. The second argument of `find` is a list. `find` will return the first element of the list for which the test function returns `true`. For example,
@@ -130,7 +143,7 @@ var y = find(function(_x){return _x > 8 && _x % 2 == 0}, x)
 print(y)
 ~~~ 
 
-We give an example of using `find` to find the position of your sliding box when $$v_x$$ just passes $$v_{x,init}/2$$. Imitate our example to find the velocity of the box when it passes the center point of the physics engine, `worldWidth/2`. 
+We give an example of using `find` to find the position of your sliding box when $$v_x$$ just passes $$v_{x,init}/2$$. Imitate our example to find $$v_x$$ of the box when it passes the center point of the physics engine, `worldWidth/2`. 
 ~~~
 var worlds_t = editor.get("worlds_t")
 
@@ -139,8 +152,12 @@ var halfSpeed = find(function(w_t){return w_t[0].velocity[0] < (worlds_t[0][0].v
 //extract the property of interest
 var halfSpeed_pos = halfSpeed[0].x
 
-/*your code here*/
-//print your answer 
+//find the world where the boolean is true
+var halfPos = find(function(w_t){return w_t[0].x > worldWidth/2}, worlds_t)
+//extract the property of interest
+var halfPos_vel = halfPos[0].velocity[0]
+
+print(halfPos_vel)
 
 ~~~ 
 
@@ -264,15 +281,13 @@ In two sentences, comment on the patterns that you see.
 
 ~~~
 var makeModelQuery = function(data, shapes, colors, maxClasses){
-  
   return function(){
 
     //parameters on distributions over what motion classes are like
     var distParams = {
       classProbs: Array.prototype.slice.call(sample(Dirichlet({alpha:Vector(_.range(maxClasses).fill(0.2))})).data),
       colorAlpha: sample(Exponential({a:1})), //color concentration parameter
-      shapeAlpha: sample(Exponential({a:1})), //shape concentration parameter
-      motionSigma: sample(Exponential({a:1}))
+      shapeAlpha: sample(Exponential({a:1})) //shape concentration parameter
     }
 
     //parameters for objects within a motion class 
@@ -281,9 +296,9 @@ var makeModelQuery = function(data, shapes, colors, maxClasses){
         p_color: sample(Dirichlet({alpha: Vector(_.range(colors.length).fill(distParams.colorAlpha))})),
         p_shape: sample(Dirichlet({alpha: Vector(_.range(shapes.length).fill(distParams.shapeAlpha))})),
         mu_sx: sample(Gaussian({mu:0, sigma:2})),
-        sigma_sx: distParams.motionSigma,
+        sigma_sx: 0.2,
         mu_v: sample(Gaussian({mu:0, sigma:2})),
-        sigma_v: distParams.motionSigma
+        sigma_v: 0.2
       } 
     }, _.range(maxClasses))
 
@@ -298,9 +313,7 @@ var makeModelQuery = function(data, shapes, colors, maxClasses){
     }, data)
 
     return {distParams:distParams, classParams:classParams, classIdxs:classIdxs}
-
   }
-
 }
 editor.put('makeModelQuery',makeModelQuery)
 ~~~
@@ -336,7 +349,7 @@ var maxClasses = 4
 
 var model = makeModelQuery(data,shapes,colors,maxClasses)
 
-var dist = Infer({method:"MCMC", lag:1000, callbacks: [editor.MCMCProgress()]}, model)
+var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
 plotter(dist, data, maxClasses)
 ~~~
 
@@ -371,7 +384,7 @@ var colors = ["red", "green", "blue", "orange"]
 var maxClasses = 4
 
 var model = makeModelQuery(newData,shapes,colors,maxClasses)
-var dist =  Infer({method:"MCMC", lag:500, burn:50000, callbacks: [editor.MCMCProgress()]}, model)
+var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("crossDist", dist)
 plotter(dist, newData, maxClasses)
 ~~~
@@ -400,7 +413,7 @@ var dist = editor.get("crossDist")
 var colors = ["red", "green", "blue", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distOrange = Infer({method:"MCMC", samples:20, lag:10000, burn:20000,  callbacks: [editor.MCMCProgress()]}, 
+var distOrange = Infer({method:"rejection", samples:50}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -426,7 +439,7 @@ var dist = editor.get("crossDist")
 var colors = ["red", "green", "blue", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distCross = Infer({method:"MCMC", samples:20, lag:10000, burn:20000, callbacks: [editor.MCMCProgress()]}, 
+var distCross = Infer({method:"rejection", samples:25}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -523,7 +536,7 @@ var maxClasses = 4
 
 var model = makeModelQuery(data,shapes,colors,maxClasses)
 
-var dist = Infer({method:"MCMC", lag:2000, callbacks: [editor.MCMCProgress()]}, model)
+var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
 plotter(dist, data, maxClasses)
 ~~~
 
@@ -557,7 +570,7 @@ var colors = ["yellow","purple","pink", "orange"]
 var maxClasses = 4
 
 var model = makeModelQuery(newData,shapes,colors,maxClasses)
-var dist =  Infer({method:"MCMC", lag:2000, callbacks: [editor.MCMCProgress()]}, model)
+var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("materialCrossDist", dist)
 plotter(dist, newData, maxClasses)
 ~~~
@@ -568,7 +581,7 @@ var dist = editor.get("materialCrossDist")
 var colors = ["yellow","purple","pink", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distOrange = Infer({method:"MCMC", samples:20, lag:20000, burn:20000,  callbacks: [editor.MCMCProgress()]}, 
+var distOrange = Infer({method:"rejection", samples:30}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -580,7 +593,7 @@ var colors = ["yellow","purple","pink", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
 
-var distCross = Infer({method:"MCMC", samples:20, lag:20000, burn:20000, callbacks: [editor.MCMCProgress()]}, 
+var distCross = Infer({method:"rejection", samples:50}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
