@@ -250,7 +250,7 @@ In two sentences, comment on the patterns that you see.
 
 Unlike [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.pdf) our hierarchical Bayesian model won't assume that the category each object belongs to is known in advance; rather, we will learn the assignment of objects to categories alongside the parameters for each category.
 
-<img src="/images/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
+<img src="/assets/img/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
 
 Specifically, we're going to model our data using a [mixture model](https://en.wikipedia.org/wiki/Mixture_model#General_mixture_model). We'll assume that each of our $$N=10$$ observations was drawn one of $$K=4$$ categories, with prior category probabilities given by $$\pi_{cat}$$. $$z_i$$ indicates which category object $$i$$ belongs to. Within each category, we'll assume that the motion properties (distance and velocity) vary Normally around some mean values $$\mu_{d}$$ and $$\mu_v$$, while the colour and shapes are drawn from Categorical distributions with parameters $$\pi_{color}$$ and $$\pi_{shape}$$.
 
@@ -260,8 +260,9 @@ In making a comparison to [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers
 
 **i)** Complete the model query below.
 ~~~
-var makeModelQuery = function(data, shapes, colors, maxClasses){
+var makeModelQuery = function(data, shapes, colors){
   return function(){
+    var maxClasses = 4
 
     //parameters on distributions over what motion classes are like
     var distParams = {
@@ -309,7 +310,7 @@ Given our hierarchical set of priors (embodied in the two sets of `sample` state
 **i)** First, let's examine what our model learns from the data we've collected so far. There is no code to complete here, you can just run the code. `plotter` is defined in the fold, in case you'd like to look at it. 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -320,7 +321,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
   console.log("Shape concentration parameter:")
   viz.density(marginalize(dist, function(x){return x.distParams.shapeAlpha}),{bounds:[0,5]})
@@ -332,12 +333,11 @@ var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("data")
 var shapes = ["circle", "triangle", "square"]
 var colors = ["red", "green", "blue"]
-var maxClasses = 4
 
-var model = makeModelQuery(data,shapes,colors,maxClasses)
+var model = makeModelQuery(data,shapes,colors)
 
 var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data, maxClasses)
+plotter(dist, data)
 ~~~
 
 Do the inferred clusters match your intuition? Relate the inferred clusters to the posterior over the concentration parameters - how do differences in the concentration parameters relate to the make up of the inferred clusters? 
@@ -347,7 +347,7 @@ Do the inferred clusters match your intuition? Relate the inferred clusters to t
 **ii)** We find an orange cross - an object with a shape and material that we've never encountered before. We drop it on the ramp, and observe that `sx = 0.5` and `v = -1.3`. Add this observation to your dataset using `.concat`, and update the other inputs to makeModelQuery. Run the code in order to infer new object classes. 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -358,7 +358,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -373,12 +373,12 @@ var newObservation = [{sx:0.5, v:-1.3, shape:"cross", color:"orange"}]
 var newData = /* your code here */
 var shapes = /* your code here */
 var colors = /* your code here */ 
-var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors,maxClasses)
+
+var model = makeModelQuery(newData,shapes,colors)
 var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("crossDist", dist)
-plotter(dist, newData, maxClasses)
+plotter(dist, newData)
 ~~~
 
 In a sentence, compare the inferred clusters with this new observation, and the clusters in the previous question. If the inferred clusters do not match your intuition, explain what you had expected and why.
@@ -522,7 +522,7 @@ In two sentences, comment on the patterns you see in the data and describe how t
 **ii)** Using the model from question 2, what clusters and concentration parameters are inferred from this data? Complete the following code in the style of question 2c,i) in order to run inference. 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -533,7 +533,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -546,7 +546,7 @@ var plotter = function(dist, data, maxClasses){
 /* your code here, should be similar to 2.c.i */
 
 var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data, maxClasses)
+plotter(dist, data)
 ~~~
 
 How does the relationship between the clusters and concentration parameters differ from question 2? What overhypotheses has this model learned? 
@@ -558,7 +558,7 @@ How does the relationship between the clusters and concentration parameters diff
 **i)** Given these overhypotheses, how will the model make inferences after observing an object it has never seen before? Specifically, let's see what the model infers about the same orange cross from question 2. There is no code to complete here. 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -569,7 +569,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -583,12 +583,11 @@ var data = editor.get("materialData")
 var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["yellow","purple","pink", "orange"]
-var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors,maxClasses)
+var model = makeModelQuery(newData,shapes,colors)
 var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("materialCrossDist", dist)
-plotter(dist, newData, maxClasses)
+plotter(dist, newData)
 ~~~
 
 How is this inference similar to and different than 2.c,ii)? Consider the clusters and the concentration parameters.
