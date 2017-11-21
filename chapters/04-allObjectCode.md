@@ -45,11 +45,21 @@ var tower = {shape: 'rect',
   color: 'red'
 }
 
+var ball = {
+  shape: 'circle',
+  static: false,
+  dims: [40],
+  x: worldWidth/2-100,
+  y:worldHeight-50,
+  color: 'blue',
+  velocity: [600,0]
+}
+
 //Defining the world. 
 //Note that the state of the world is completely defined by a list of shapes:
 var initialWorld = [ground, tower] 
 //Simulating and animating the world
-physics.animate(1000, initialWorld); 
+physics.animate(1000, initialWorld.concat(ball)); 
 ~~~
 
 > **b) Measuring motion**
@@ -253,15 +263,16 @@ In two sentences, comment on the patterns that you see.
 <img src="/images/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
 
 ~~~
-var makeModelQuery = function(data, shapes, colors){
+var makeModelQuery = function(data, shapes, colors, maxClasses){
+  
   return function(){
-    var maxClasses = 4
 
     //parameters on distributions over what motion classes are like
     var distParams = {
       classProbs: Array.prototype.slice.call(sample(Dirichlet({alpha:Vector(_.range(maxClasses).fill(0.2))})).data),
       colorAlpha: sample(Exponential({a:1})), //color concentration parameter
-      shapeAlpha: sample(Exponential({a:1})) //shape concentration parameter
+      shapeAlpha: sample(Exponential({a:1})), //shape concentration parameter
+      motionSigma: sample(Exponential({a:1}))
     }
 
     //parameters for objects within a motion class 
@@ -270,9 +281,9 @@ var makeModelQuery = function(data, shapes, colors){
         p_color: sample(Dirichlet({alpha: Vector(_.range(colors.length).fill(distParams.colorAlpha))})),
         p_shape: sample(Dirichlet({alpha: Vector(_.range(shapes.length).fill(distParams.shapeAlpha))})),
         mu_sx: sample(Gaussian({mu:0, sigma:2})),
-        sigma_sx: 0.2,
+        sigma_sx: distParams.motionSigma,
         mu_v: sample(Gaussian({mu:0, sigma:2})),
-        sigma_v: 0.2
+        sigma_v: distParams.motionSigma
       } 
     }, _.range(maxClasses))
 
@@ -287,7 +298,9 @@ var makeModelQuery = function(data, shapes, colors){
     }, data)
 
     return {distParams:distParams, classParams:classParams, classIdxs:classIdxs}
+
   }
+
 }
 editor.put('makeModelQuery',makeModelQuery)
 ~~~
@@ -296,7 +309,7 @@ editor.put('makeModelQuery',makeModelQuery)
 
 ~~~
 ///fold:
-var plotter = function(dist, data){  
+var plotter = function(dist, data, maxClasses){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -307,7 +320,7 @@ var plotter = function(dist, data){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.range(maxClasses))
 
   console.log("Shape concentration parameter:")
   viz.density(marginalize(dist, function(x){return x.distParams.shapeAlpha}),{bounds:[0,5]})
@@ -319,17 +332,18 @@ var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("data")
 var shapes = ["circle", "triangle", "square"]
 var colors = ["red", "green", "blue"]
+var maxClasses = 4
 
-var model = makeModelQuery(data,shapes,colors)
+var model = makeModelQuery(data,shapes,colors,maxClasses)
 
-var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data)
+var dist = Infer({method:"MCMC", lag:1000, callbacks: [editor.MCMCProgress()]}, model)
+plotter(dist, data, maxClasses)
 ~~~
 
 
 ~~~
 ///fold:
-var plotter = function(dist, data){  
+var plotter = function(dist, data, maxClasses){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -340,7 +354,7 @@ var plotter = function(dist, data){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.range(maxClasses))
 
 
   console.log("Shape concentration parameter:")
@@ -354,11 +368,12 @@ var data = editor.get("data")
 var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["red", "green", "blue", "orange"]
+var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors)
-var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
+var model = makeModelQuery(newData,shapes,colors,maxClasses)
+var dist =  Infer({method:"MCMC", lag:500, burn:50000, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("crossDist", dist)
-plotter(dist, newData)
+plotter(dist, newData, maxClasses)
 ~~~
 
 > ** d) overhypotheses **
@@ -385,7 +400,7 @@ var dist = editor.get("crossDist")
 var colors = ["red", "green", "blue", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distOrange = Infer({method:"rejection", samples:50}, 
+var distOrange = Infer({method:"MCMC", samples:20, lag:10000, burn:20000,  callbacks: [editor.MCMCProgress()]}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -411,7 +426,7 @@ var dist = editor.get("crossDist")
 var colors = ["red", "green", "blue", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distCross = Infer({method:"rejection", samples:25}, 
+var distCross = Infer({method:"MCMC", samples:20, lag:10000, burn:20000, callbacks: [editor.MCMCProgress()]}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -480,7 +495,7 @@ editor.put("materialData", materialData)
 
 ~~~
 ///fold:
-var plotter = function(dist, data){  
+var plotter = function(dist, data, maxClasses){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -491,7 +506,7 @@ var plotter = function(dist, data){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.range(maxClasses))
 
 
   console.log("Shape concentration parameter:")
@@ -504,16 +519,17 @@ var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("materialData")
 var shapes = ["circle", "triangle", "square"]
 var colors = ["yellow","purple","pink"]
+var maxClasses = 4
 
-var model = makeModelQuery(data,shapes,colors)
+var model = makeModelQuery(data,shapes,colors,maxClasses)
 
-var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data)
+var dist = Infer({method:"MCMC", lag:2000, callbacks: [editor.MCMCProgress()]}, model)
+plotter(dist, data, maxClasses)
 ~~~
 
 ~~~
 ///fold:
-var plotter = function(dist, data){  
+var plotter = function(dist, data, maxClasses){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -524,7 +540,7 @@ var plotter = function(dist, data){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.range(maxClasses))
 
 
   console.log("Shape concentration parameter:")
@@ -538,11 +554,12 @@ var data = editor.get("materialData")
 var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["yellow","purple","pink", "orange"]
+var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors)
-var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
+var model = makeModelQuery(newData,shapes,colors,maxClasses)
+var dist =  Infer({method:"MCMC", lag:2000, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("materialCrossDist", dist)
-plotter(dist, newData)
+plotter(dist, newData, maxClasses)
 ~~~
 
 ~~~
@@ -551,7 +568,7 @@ var dist = editor.get("materialCrossDist")
 var colors = ["yellow","purple","pink", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
-var distOrange = Infer({method:"rejection", samples:30}, 
+var distOrange = Infer({method:"MCMC", samples:20, lag:20000, burn:20000,  callbacks: [editor.MCMCProgress()]}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
@@ -563,7 +580,7 @@ var colors = ["yellow","purple","pink", "orange"]
 var shapes = ["circle", "triangle", "square", "cross"]
 
 
-var distCross = Infer({method:"rejection", samples:50}, 
+var distCross = Infer({method:"MCMC", samples:20, lag:20000, burn:20000, callbacks: [editor.MCMCProgress()]}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
 viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
