@@ -255,8 +255,9 @@ hello
 why
 
 ~~~
-var makeModelQuery = function(data, shapes, colors, maxClasses){
+var makeModelQuery = function(data, shapes, colors){
   return function(){
+    var maxClasses = 4
 
     //parameters on distributions over what motion classes are like
     var distParams = {
@@ -297,7 +298,7 @@ editor.put('makeModelQuery',makeModelQuery)
 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -308,7 +309,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
   console.log("Shape concentration parameter:")
   viz.density(marginalize(dist, function(x){return x.distParams.shapeAlpha}),{bounds:[0,5]})
@@ -320,18 +321,17 @@ var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("data")
 var shapes = ["circle", "triangle", "square"]
 var colors = ["red", "green", "blue"]
-var maxClasses = 4
 
-var model = makeModelQuery(data,shapes,colors,maxClasses)
+var model = makeModelQuery(data,shapes,colors)
 
 var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data, maxClasses)
+plotter(dist, data)
 ~~~
 
 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -342,7 +342,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -356,12 +356,11 @@ var data = editor.get("data")
 var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["red", "green", "blue", "orange"]
-var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors,maxClasses)
+var model = makeModelQuery(newData,shapes,colors)
 var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("crossDist", dist)
-plotter(dist, newData, maxClasses)
+plotter(dist, newData)
 ~~~
 
 > ** d) overhypotheses **
@@ -483,7 +482,7 @@ editor.put("materialData", materialData)
 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -494,7 +493,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -507,17 +506,16 @@ var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("materialData")
 var shapes = ["circle", "triangle", "square"]
 var colors = ["yellow","purple","pink"]
-var maxClasses = 4
 
-var model = makeModelQuery(data,shapes,colors,maxClasses)
+var model = makeModelQuery(data,shapes,colors)
 
 var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
-plotter(dist, data, maxClasses)
+plotter(dist, data)
 ~~~
 
 ~~~
 ///fold:
-var plotter = function(dist, data, maxClasses){  
+var plotter = function(dist, data){  
   console.log('Entire dataset:')
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
@@ -528,7 +526,7 @@ var plotter = function(dist, data, maxClasses){
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.range(maxClasses))
+  }, _.union(classIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -542,12 +540,11 @@ var data = editor.get("materialData")
 var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["yellow","purple","pink", "orange"]
-var maxClasses = 4
 
-var model = makeModelQuery(newData,shapes,colors,maxClasses)
+var model = makeModelQuery(newData,shapes,colors)
 var dist =  Infer({method:"MCMC", burn:50000, lag:500, callbacks: [editor.MCMCProgress()]}, model)
 editor.put("materialCrossDist", dist)
-plotter(dist, newData, maxClasses)
+plotter(dist, newData)
 ~~~
 
 ~~~
