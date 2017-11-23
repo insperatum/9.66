@@ -175,6 +175,7 @@ function applyWorld(initialWorld) {
       bodyDef.linearVelocity.y = velocity[1] / SCALE;
       var f = world.CreateBody(bodyDef).CreateFixture(fixDef);
       f.color = color
+      f.col = obj.color
       f.shape = shape
       f.dims = dims
     }
@@ -214,6 +215,8 @@ function churchWorld_from_bodyList(body) {
 
     var shape = body.GetFixtureList().shape;
     var dims = body.GetFixtureList().dims;
+    var color = body.GetFixtureList().col;
+    
     // if (shapeInt == 0) {
     //   shape = "circle";
     //   dims = [body.GetFixtureList().GetShape().GetRadius() * SCALE];
@@ -227,6 +230,7 @@ function churchWorld_from_bodyList(body) {
     worldList.push({shape: shape,
                     static: isStatic,
                     dims: dims,
+                    color: color,
                     x: x,
                     y: y,
                     velocity: [body.GetLinearVelocity().x * SCALE,
