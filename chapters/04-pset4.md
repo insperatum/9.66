@@ -9,30 +9,30 @@ custom_js: assets/js/save_v2.js
 <div id="autosaveTxt" style="font-style:italic"></div>
 
 
-In this problem set, we will build a [hierarchical Bayesian model](https://probmods.org/chapters/09-hierarchical-models.html) to learn about object categories in the world, by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 
+In this problem set, we will build a [hierarchical Bayesian model](http://probmods.org/chapters/09-hierarchical-models.html) to learn about object categories in the world, by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 
 
 # Question 1: Preliminaries on the webppl physics engine
-Box2D is a two dimensional physics simulator for simulating moving shapes. Here, we go through how to use webppl to create shapes, simulate physics, and make physical measurements (e.g., measure a shape's velocity). We will not go over how to do inference in a probabilistic physics engine because it is not required for this problem set, but it is covered in the last examples in [the second chapter](https://probmods.org/chapters/02-generative-models.html) of probmods.  
+Box2D is a two dimensional physics simulator for simulating moving objects. Here, we go through how to use webppl to create objects, simulate physics, and make physical measurements (e.g., measure an object's velocity). We will not go over how to do inference in a probabilistic physics engine because it is not required for this problem set, but it is covered in the last examples in [the second chapter](http://probmods.org/chapters/02-generative-models.html) of probmods.  
 
 > **a) Creating and simulating worlds**
 
 In Box2D, the state of the world at time $$t$$ is defined by a list of objects with the following properties:
 * `shape`: 'circle' or 'square' or 'triangle' or 'rect'
 * `dims`: [radius] for circle; [side_length] for 'square'; [side_length] for triangle; [width, height] for 'rect';
-* `x`: distance from left
-* `y`: distance from top
+* `x`: distance from left edge
+* `y`: distance from top edge
 * `static`: true or false (i.e., is the object fixed in place?)
 * `velocity`: [x_velocity, y_velocity]
 * `color`: 'red' or 'blue' or 'green'
 
 `worldWidth` and `worldHeight` are constants representing the visible size of the simulation window. 
 
-**i)** First, run the simulation below. `physics.animate(total_time_steps, list_of_objects)` displays an animation that shows the shapes moving. Then, add a blue circle to the world so that it moves along the ground and knocks over the tower. In addition to defining the blue circle, you'll also need to add it to `initialWorld` (using `_.concat`) when you run `physics.animate`.
+**i)** First, run the simulation below. `physics.animate(total_time_steps, list_of_objects)` displays an animation that shows the objects moving. Then, add a blue circle to the world so that it moves along the ground and knocks over the tower. In addition to defining the blue circle, you'll also need to add it to `initialWorld` (using `.concat`) when you run `physics.animate`.
 ~~~
-//Shape definitions:
+//Object definitions:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight
 }
@@ -54,16 +54,16 @@ physics.animate(1000, initialWorld);
 
 > **b) Measuring motion**
 
-In order to learn about objects, we need some way of gathering data from the world. In this problem set, we focus on motion data so here we will plot how a shape's position and velocity change over time.
+In order to learn about objects, we need some way of gathering data from the world. In this problem set, we focus on motion data so here we will plot how a object's position and velocity change over time.
 
 To do this, we need to simulate the world state at multiple time points, then read off the motion data at each time point. We will use `physics.run(t, initialWorld)`, which returns the world state at time $$t$$. Just as `initialWorld` is a list of objects, the output of `physics.run` is a list of objects. 
 
-**i)** First, define a green sliding box with initial position `worldWidth/2-100` and initial velocity `[500,0]`. Then, complete the simulation code by a) defining a list of times from 0 to 500 in steps of 20, by using [_.range](http://underscorejs.org/#range); b) filling in the [map](http://docs.webppl.org/en/master/functions/arrays.html) to return a list of world states at the specified time points.
+**i)** First, define a sliding green square with initial $$x$$ position `worldWidth/2-100` and initial velocity `[500,0]`. Then, complete the simulation code by a) defining a list of times from 0 to 500 in steps of 20, by using [_.range](http://underscorejs.org/#range); b) filling in the [map](http://docs.webppl.org/en/master/functions/arrays.html) to return a list of world states at the specified time points.
 ~~~
-//Shape definitions:
+//Object definitions:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight,
   color: 'gray'
@@ -96,7 +96,7 @@ var times = editor.get("times")
 
 //returns a list of [x_position, y_position] over time for the sliding box
 var positions = map(function(i){
-  var slidingBoxState = worlds_t[i][0] //last shape in initialWorld is first shape in world_t! 
+  var slidingBoxState = worlds_t[i][0] //last object in initialWorld is first object in world_t! 
   var position_t = {x:slidingBoxState.x, y:slidingBoxState.y}
   return position_t 
 },_.range(worlds_t.length))
@@ -113,7 +113,7 @@ viz.line(times, map(function(position){return position.y}, positions))
 
 ~~~
 
-**iii)** The webppl function `find`. The first argument of `find` is a "test" function with one argument that returns a boolean. The second argument of `find` is a list. `find` will return the first element of the list for which the test function returns `true`. For example,
+**iii)** Now we'll cover the webppl function `find`. The first argument of `find` is a "test" function with one argument that returns a boolean. The second argument of `find` is a list. `find` will return the first element of the list for which the test function returns `true`. For example,
 ~~~
 var x = _.range(11)
 var y = find(function(_x){return _x > 8 && _x % 2 == 0}, x)
@@ -136,14 +136,14 @@ var halfSpeed_pos = halfSpeed[0].x
 
 # Question 2: Learning about object categories
 
-How might a child start to build an intuitive theory of how an object's physical properties relate to its motion? One possibility is to group objects into categories, with each category defining a distribution over both motion properties (speed and displacement) and physical makeup (shape and material). In addition, rather than learning about each category in isolation, they might also develop higher-order beliefs about categories in general - for example, they might learn a ‘shape bias’. In this problem set, we will frame this learning process as inference in a hierarchical Bayesian model, similar to the ones discussed in class. 
+How might a child start to build an intuitive theory of how an object's physical properties relate to its motion? One possibility is to group objects into categories, with each category defining a distribution over both motion properties (speed and displacement) and physical makeup (shape and material). In addition, rather than learning about each category in isolation, they might also develop higher-order beliefs about categories in general - for example, they might learn a _shape bias_. In this problem set, we will frame this learning process as inference in a hierarchical Bayesian model, similar to the ones discussed in class. 
 
- The animation in the following code box illustrates our problem domain. In our world, there are objects of various shapes and materials (indicated by their colour). We will observe the motion of these objects when we drop them onto a ramp. Unfold the code below to play with the object definitions and explore how different objects move. What are your hypotheses about how objects' physical properties relate to their motion?
+ The animation in the following code box illustrates our problem domain. In our world, there are objects of various shapes (`circles`,`triangles`, and `squares`) and materials (indicated by their colour). We will observe the motion of these objects when we drop them onto a ramp. Unfold the code below to play with the object definitions and explore how different objects move. What are your hypotheses about how objects' physical properties relate to their motion?
 ~~~
 ///fold:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight
 }
@@ -162,17 +162,17 @@ physics.animate(1000,initialWorld)
 
 > **a) Measuring motion**
 
-In the code block below, the variable `objects` contains a list of 10 shapes found in our world. For each shape, we set `x` and `y` so that they will be dropped from the same point onto the ramp.
+In the code block below, the variable `objects` contains a list of 10 objects found in our world. For each object, we set `x` and `y` so that they will be dropped from the same point onto the ramp.
 
 **i)** Use `find` to collect the following motion data for each object: 
 * `d`, the final $$x$$ position of the object (the first $$pos_x$$ such that $$vel_x$$ < 0.5)
-* `v`, the magnitude of  the velocity vector of the shape when it exits the ramp ($$\sqrt{vel_x^2 + vel_y^2}$$ when the shape has just passed the rightmost edge of the ramp, at `worldWidth/2 - 125`)
+* `v`, the magnitude of  the velocity vector of the object when it exits the ramp ($$\sqrt{vel_x^2 + vel_y^2}$$ when the object has just passed the rightmost edge of the ramp, at `worldWidth/2 - 125`)
 
 ~~~
 ///fold:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight
 }
@@ -197,19 +197,11 @@ var getMotion = function(initialWorld,objects){
     //define the time steps from t=50 to t=1000, with delta_t = 5
     //use physics.run to get world states for each t
 
-    var objWorld = initialWorld.concat(obj)  
-    var times = _.range(50,1000,5)
-    var world_t = map(function(t){return physics.run(t,objWorld)}, times)  
-
-    //your code here to measure s (you only need two lines!)
-    var atRest = find(function(t){return t[0].velocity[0] < 0.5}, world_t)
-    var sx = atRest[0].x
+    //your code here to measure d (you only need two lines!)
     
     //your code here to measure v (you only need two lines!)
-    var endOfRamp = find(function(t){return t[0].x > worldWidth/2 - 125}, world_t)
-    var v = Math.sqrt(Math.pow(endOfRamp[0].velocity[0],2) + Math.pow(endOfRamp[0].velocity[1],2))
 
-    return {motion:{sx:sx, v:v},object:{shape:obj.shape, color:obj.color}}
+    return {motion:{d:d, v:v},object:{shape:obj.shape, color:obj.color}}
 
   }, objects)
 
@@ -226,16 +218,16 @@ editor.put("motionData", motionData)
 **ii)** The next code box will scale and visualize your data. You do not need to complete any code. 
 ~~~
 var motionData = editor.get("motionData")
-var posDist = {mu:listMean(map(function(o) {return o.motion.sx}, motionData)),
-               std:listStdev(map(function(o) {return o.motion.sx}, motionData))}
+var posDist = {mu:listMean(map(function(o) {return o.motion.d}, motionData)),
+               std:listStdev(map(function(o) {return o.motion.d}, motionData))}
 var velDist = {mu:listMean(map(function(o) {return o.motion.v}, motionData)),
                std:listStdev(map(function(o) {return o.motion.v}, motionData))}
 var data = map(function(o) {
   return {
-    sx:(o.motion.sx-posDist.mu) / posDist.std,
+    d:(o.motion.d-posDist.mu) / posDist.std,
     v:(o.motion.v-velDist.mu) / velDist.std,
-    shape: d.object.shape,
-    color: d.object.color  
+    shape: o.object.shape,
+    color: o.object.color  
   }
 }, motionData)
 viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
@@ -252,54 +244,101 @@ Unlike [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.
 
 <img src="/assets/img/slide.png" alt="Graphical model" align="right" style="width: 250px;"/>
 
-Specifically, we're going to model our data using a [mixture model](https://en.wikipedia.org/wiki/Mixture_model#General_mixture_model). We'll assume that each of our $$N=10$$ observations was drawn one of $$K=4$$ categories, with prior category probabilities given by $$\pi_{cat}$$. $$z_i$$ indicates which category object $$i$$ belongs to. Within each category, we'll assume that the motion properties (distance and velocity) vary Normally around some mean values $$\mu_{d}$$ and $$\mu_v$$, while the colour and shapes are drawn from Categorical distributions with parameters $$\pi_{color}$$ and $$\pi_{shape}$$.
+Specifically, we're going to model our data using a [mixture model](https://en.wikipedia.org/wiki/Mixture_model#General_mixture_model). We'll assume that each of our $$N=10$$ observations was drawn one of $$K=4$$ categories, with prior category probabilities given by $$\pi_{cat}$$. $$z_i$$ indicates which category object $$i$$ belongs to. Within each category, we'll assume that the motion properties (distance and velocity) vary around some mean values $$\mu_{d}$$ and $$\mu_v$$, while the colour and shapes are drawn from Categorical distributions with parameters $$\pi_{color}$$ and $$\pi_{shape}$$.
 
 How much should objects drawn from a typical category vary in color, or shape? This variation will be expressed by the concentration parameter $$\alpha$$ for a Dirichlet distribution: a value of $$\alpha_{color}$$ close to 0 would mean that categories are usually dominated by only a single color, while a very large value of $$\alpha_{color}$$ would mean that every category has a close to uniform distribution of colors. Rather than assume we know $$\alpha_{color}$$ and $$\alpha_{shape}$$ in advance, we'll put priors on them and try to infer them from the data.
 
-In making a comparison to [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.pdf), note that we are inferring the parameter of a symmetric Dirichlet distribution, i.e., $$\alpha_{color}$$ = [$$\alpha$$, $$\alpha$$, $$\alpha$$]. The equivalent parameter settings in Kemp et al. (2007) is inferring a univariate $$\alpha$$ and fixing $$\beta$$ = [1/3, 1/3 1/3]. This expresses that we believe that there is no net bias towards any particular shape or colour, and we will learn whether the proportions differ between categories.
+In making a comparison to [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.pdf), note that we are inferring the parameter of a symmetric Dirichlet distribution, i.e., $$\bar\alpha_{color}$$ = [$$\alpha_{color}$$, $$\alpha_{color}$$, $$\alpha_{color}$$]. In Kemp et al.'s formulation, this is equivalent to $$\alpha$$ = $$\alpha_{color}$$ and $$\beta$$ = [1/3, 1/3, 1/3]. This expresses that we believe that there is no net bias towards any particular shape or colour, and we will learn whether the proportions differ between categories.
 
-**i)** Complete the model query below.
+**i)** The following is the specification of distributions for the graphical model above. In this question you'll complete a few codes of the model query below according to this specification.
+
+$$
+\bar \pi_{cat} \sim Dirichlet(\alpha = 0.2)
+$$
+
+$$
+\alpha_{color} \sim Exponential(a = 1)
+$$
+
+$$
+\alpha_{shape} \sim Exponential(a = 1)
+$$
+
+$$
+\bar \pi_{color} \sim  Dirichlet(\bar \alpha = \lbrack \alpha_{color},\alpha_{color},\alpha_{color} \rbrack)
+$$
+
+$$
+\bar \pi_{shape} \sim  Dirichlet(\bar \alpha = \lbrack \alpha_{shape},\alpha_{shape},\alpha_{shape} \rbrack)
+$$
+
+$$
+\mu_{d} \sim Normal(\mu = 0, \sigma = 2)
+$$
+
+$$
+\mu_{v} \sim Normal(\mu = 0, \sigma = 2)
+$$
+
+$$
+z_i \sim Categorical(\bar p = \bar \pi_{cat}, \bar v = \lbrack 0,1,2,3 \rbrack )
+$$
+
+$$
+d \sim Normal(\mu = \mu_d, \sigma = 0.2)
+$$
+
+$$
+v \sim Normal(\mu = \mu_v, \sigma = 0.2)
+$$
+
+$$
+c \sim Categorical(\bar p = \bar \pi_{color}, \bar v = \lbrack red, blue, green \rbrack)
+$$
+
+$$
+s \sim Categorical(\bar p = \bar \pi_{shape}, \bar v = \lbrack triangle, circle, square \rbrack)
+$$
+
 ~~~
 var makeModelQuery = function(data, shapes, colors){
   return function(){
-    var maxClasses = 4
+    var maxCategories = 4 //this is K
 
-    //parameters on distributions over what motion classes are like
+    //parameters on distributions over what categories are like
     var distParams = {
-      classProbs: Array.prototype.slice.call(sample(Dirichlet({alpha:Vector(_.range(maxClasses).fill(0.2))})).data),
-      colorAlpha: sample(Exponential({a:1})), //color concentration parameter
-      shapeAlpha: sample(Exponential({a:1})) //shape concentration parameter
+      categoryProbs: Array.prototype.slice.call(sample(Dirichlet({alpha:Vector(_.range(maxCategories).fill(0.2))})).data),
+      colorAlpha: /* your code here */,
+      shapeAlpha: /* your code here */
     }
 
-    //parameters for objects within a motion class 
-    var classParams = map(function(i) {
+    //parameters defining distributions over objects within a category
+    var categoryParams = map(function(k) {
       return {
         p_color: sample(Dirichlet({alpha: Vector(_.range(colors.length).fill(distParams.colorAlpha))})),
-        p_shape: sample(Dirichlet({alpha: Vector(_.range(shapes.length).fill(distParams.shapeAlpha))})),
-        mu_sx: sample(Gaussian({mu:0, sigma:2})),
-        sigma_sx: 0.2,
-        mu_v: sample(Gaussian({mu:0, sigma:2})),
-        sigma_v: 0.2
+        p_shape: /*your code here*/,
+        mu_d: sample(Gaussian({mu:0, sigma:2})),
+        sigma_d: /* your code here */,
+        mu_v: /* your code here */,
+        sigma_v: /* your code here */
       } 
-    }, _.range(maxClasses))
+    }, _.range(maxCategories))
 
-    //which objects belong to which motion class? 
-    var classIdxs = map(function(o) {
-      var i = sample(Discrete({ps:distParams.classProbs}))
-      observe(Gaussian({mu:classParams[i].mu_sx, sigma:classParams[i].sigma_sx}), d.sx)
-      observe(Gaussian({mu:classParams[i].mu_v, sigma:classParams[i].sigma_v}), d.v)
-      observe(Categorical({ps:classParams[i].p_color, vs:colors}), o.color)
-      observe(Categorical({ps:classParams[i].p_shape, vs:shapes}), o.shape)
-      return i
+    //which objects belong to which category? 
+    var categoryIdxs = map(function(o) {
+      var z = sample(Discrete({ps:distParams.categoryProbs}))
+      observe(Gaussian({mu:categoryParams[z].mu_d, sigma:categoryParams[z].sigma_d}), o.d)
+      /* complete three more observe statements here */
+      return z
     }, data)
 
-    return {distParams:distParams, classParams:classParams, classIdxs:classIdxs}
+    return {distParams:distParams, categoryParams:categoryParams, categoryIdxs:categoryIdxs}
   }
 }
 editor.put('makeModelQuery',makeModelQuery)
 ~~~
 
-**ii)** In 3 sentences, evaluate the assumptions that go into the model. 
+**ii)** In a few sentences, evaluate the assumptions that go into the model. 
 
 <textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
 
@@ -315,13 +354,13 @@ var plotter = function(dist, data){
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
   console.log('Classes:')
-  var classIdxs = _.last(dist.samples).value.classIdxs
-  map(function(classIdx) {
-    var idxs = filter(function(i) {classIdxs[i]==classIdx}, _.range(data.length))
+  var categoryIdxs = _.last(dist.samples).value.categoryIdxs
+  map(function(categoryIdx) {
+    var idxs = filter(function(i) {categoryIdxs[i]==categoryIdx}, _.range(data.length))
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.union(categoryIdxs))
 
   console.log("Shape concentration parameter:")
   viz.density(marginalize(dist, function(x){return x.distParams.shapeAlpha}),{bounds:[0,5]})
@@ -344,7 +383,7 @@ Do the inferred clusters match your intuition? Relate the inferred clusters to t
 
 <textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
 
-**ii)** We find an orange cross - an object with a shape and material that we've never encountered before. We drop it on the ramp, and observe that `sx = 0.5` and `v = -1.3`. Add this observation to your dataset using `.concat`, and update the other inputs to makeModelQuery. Run the code in order to infer new object classes. 
+**ii)** We find an orange cross - an object with a shape and material that we've never encountered before. We drop it on the ramp, and observe that `d = 0.5` and `v = -1.3`. Add this observation to your dataset using `.concat`, and update the other inputs to makeModelQuery. Run the code in order to infer new object classes. 
 ~~~
 ///fold:
 var plotter = function(dist, data){  
@@ -352,13 +391,13 @@ var plotter = function(dist, data){
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
   console.log('Classes:')
-  var classIdxs = _.last(dist.samples).value.classIdxs
-  map(function(classIdx) {
-    var idxs = filter(function(i) {classIdxs[i]==classIdx}, _.range(data.length))
+  var categoryIdxs = _.last(dist.samples).value.categoryIdxs
+  map(function(categoryIdx) {
+    var idxs = filter(function(i) {categoryIdxs[i]==categoryIdx}, _.range(data.length))
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.union(categoryIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -369,7 +408,7 @@ var plotter = function(dist, data){
 ///
 var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("data")
-var newObservation = [{sx:0.5, v:-1.3, shape:"cross", color:"orange"}]
+var newObservation = [{d:0.5, v:-1.3, shape:"cross", color:"orange"}]
 var newData = /* your code here */
 var shapes = /* your code here */
 var colors = /* your code here */ 
@@ -387,22 +426,22 @@ In a sentence, compare the inferred clusters with this new observation, and the 
 
 > **d) Overhypotheses in imagination**
 
-In class, we discussed the _shape bias_ -- when learning the names of objects, North American children generalize a new label for an object to other objects of the same shape, rather than objects with the same color or texture. This is an example of an _overhypothesis_: in addition to learning what names correspond to which objects, children learn about what object names tend to mean in general. [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.pdf) show that hierarchical Bayesian models enable the acquisition of such abstract knowledge, as well as one-shot learning of specific instances. 
+In class, we discussed the _shape bias_ -- when learning the names of objects, North American children generalize a new label for an object to other objects of the same shape, rather than objects with the same color or texture. This is an example of an _overhypothesis_: in addition to learning what names correspond to which objects, children learn that object labels generally tend to group objects by shape. [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers/devsci07_kempetal.pdf) show that hierarchical Bayesian models enable the acquisition of such abstract knowledge, as well as one-shot learning from specific instances. 
 
 In this question, we will examine how abstract knowledge embodied by our model allows us to reason about objects we have never seen before. 
 
-**i)** What kind of motion properties do we imagine a orange circle would have? How about a orange triangle? We have never seen these objects, but you probably have intuitions about how they would move. The code in this textbox and the next uses the distribution inferred in the last question to imagine oranges shapes and their motion. Run these code boxes to view samples from the model's imagined distribution over orange shapes. There is no code to complete in either this codebox or the next. 
+**i)** What kind of motion properties do we imagine an orange circle would have? How about an orange triangle? We have never seen these objects, but you probably have intuitions about how they would move. The code in this textbox and the next uses the distribution inferred in the last question to imagine oranges shapes and their motion. Run these code boxes to view samples from the model's imagined distribution over orange shapes. There is no code to complete in either this codebox or the next. 
 ~~~
 var imagineColor = function(color, dist, colors, shapes) {
   var p = sample(dist)
   var distParams = p.distParams
-  var classParams = p.classParams
-  var j = sample(Discrete({ps:distParams.classProbs}))
-  observe(Categorical({ps:classParams[j].p_color, vs:colors}), color)
-  var shape = sample(Categorical({ps:classParams[j].p_shape, vs:shapes}))
-  var x = sample(Gaussian({mu:classParams[j].mu_sx, sigma:classParams[j].sigma_sx}))
-  var y = sample(Gaussian({mu:classParams[j].mu_v, sigma:classParams[j].sigma_v}))
-  return {x:x, y:y, color:color, shape:shape}
+  var categoryParams = p.categoryParams
+  var j = sample(Discrete({ps:distParams.categoryProbs}))
+  observe(Categorical({ps:categoryParams[j].p_color, vs:colors}), color)
+  var shape = sample(Categorical({ps:categoryParams[j].p_shape, vs:shapes}))
+  var d = sample(Gaussian({mu:categoryParams[j].mu_d, sigma:categoryParams[j].sigma_d}))
+  var v = sample(Gaussian({mu:categoryParams[j].mu_v, sigma:categoryParams[j].sigma_v}))
+  return {d:d, v:v, color:color, shape:shape}
 }
 
 editor.put("imagineColor",imagineColor)
@@ -416,14 +455,14 @@ var shapes = ["circle", "triangle", "square", "cross"]
 
 var distOrange = Infer({method:"rejection", samples:50}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
-viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
+viz.scatterShapes(map(function(s){s.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
 
 **ii)** You likely also have intuitions about how a red cross would move despite never having seen one. Let's check whether your intuitions match the model inferences. Define the function `imagineShape` to be analogous to `imagineColor`, such that it "imagines" crosses of various colors and their motion. 
 ~~~
 var imagineShape = function(shape,dist,colors,shapes) {
   /* your code here */
-  return {x:x, y:y, color:color, shape:shape}
+  return {d:d, v:v, color:color, shape:shape}
 }
 editor.put("imagineShape",imagineShape)
 ~~~
@@ -438,7 +477,7 @@ var shapes = ["circle", "triangle", "square", "cross"]
 
 var distCross = Infer({method:"rejection", samples:25}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
-viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
+viz.scatterShapes(map(function(s){s.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
 
 Describe the distribution of the model's imagined orange shapes, and the distribution of the model's imagined crosses of various materials. What overhypotheses has the model learned, and how does that abstract knowledge manifest in the model's imagination? What inferred model parameters reflect these overhypotheses? 
@@ -447,13 +486,15 @@ Describe the distribution of the model's imagined orange shapes, and the distrib
 
 # Question 3: Learning in a new world
 
-What would the same model learn in a world with different types of objects? In this new world, we have objects made of materials that are `pink`, `purple`, and `yellow`. You can play with the simulator below to get some intuition for how these objects move (again, `objects` is defined in the fold).
+What would the same model learn in a world with different types of objects? In this new world, we have objects that are the same shapes (`circles`,`triangles`, and `squares`) but are made of materials that are `pink`, `purple`, and `yellow`. You can play with the simulator below to get some intuition for how these objects move (again, `objects` is defined in the fold).
+
+This question requires hardly any programming, since it reuses code from Question 2. 
 
 ~~~
 ///fold:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight
 }
@@ -479,7 +520,7 @@ What are your hypotheses about how the relationship between object properties an
 ///fold:
 var ground = {shape: 'rect',
   static: true,
-  dims: [worldWidth, 10],
+  dims: [100000*worldWidth, 10],
   x: worldWidth/2,
   y: worldHeight
 }
@@ -495,21 +536,19 @@ var objects = [{static:false,x:worldWidth/2 - 290,y:worldHeight - 200,"shape":"s
 /* your code here to infer motion properties of the variable 'objects' 
 you should be able to use editor.get */
 
-///fold:
-var posDist = {mu:listMean(map(function(o) {return o.motion.sx}, motionData)),
-               std:listStdev(map(function(o) {return o.motion.sx}, motionData))}
+//Scaling and visualization, as before:
+var posDist = {mu:listMean(map(function(o) {return o.motion.d}, motionData)),
+               std:listStdev(map(function(o) {return o.motion.d}, motionData))}
 var velDist = {mu:listMean(map(function(o) {return o.motion.v}, motionData)),
                std:listStdev(map(function(o) {return o.motion.v}, motionData))}
 var materialData = map(function(o) {
   return {
-    sx:(o.motion.sx-posDist.mu) / posDist.std,
+    d:(o.motion.d-posDist.mu) / posDist.std,
     v:(o.motion.v-velDist.mu) / velDist.std,
-    shape: d.object.shape,
-    color: d.object.color,  
+    shape: o.object.shape,
+    color: o.object.color,  
   }
 }, motionData)
-///
-
 //plot your experimental results
 viz.scatterShapes(materialData, {xBounds:[-3,3], yBounds:[-3,3]})
 editor.put("materialData", materialData)
@@ -527,13 +566,13 @@ var plotter = function(dist, data){
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
   console.log('Classes:')
-  var classIdxs = _.last(dist.samples).value.classIdxs
-  map(function(classIdx) {
-    var idxs = filter(function(i) {classIdxs[i]==classIdx}, _.range(data.length))
+  var categoryIdxs = _.last(dist.samples).value.categoryIdxs
+  map(function(categoryIdx) {
+    var idxs = filter(function(i) {categoryIdxs[i]==categoryIdx}, _.range(data.length))
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.union(categoryIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -563,13 +602,13 @@ var plotter = function(dist, data){
   viz.scatterShapes(data, {xBounds:[-3,3], yBounds:[-3,3]})
 
   console.log('Classes:')
-  var classIdxs = _.last(dist.samples).value.classIdxs
-  map(function(classIdx) {
-    var idxs = filter(function(i) {classIdxs[i]==classIdx}, _.range(data.length))
+  var categoryIdxs = _.last(dist.samples).value.categoryIdxs
+  map(function(categoryIdx) {
+    var idxs = filter(function(i) {categoryIdxs[i]==categoryIdx}, _.range(data.length))
     if(idxs.length>0) {
       viz.scatterShapes(map(function(i) {data[i]}, idxs), {xBounds:[-3,3], yBounds:[-3,3]})  
     }
-  }, _.union(classIdxs))
+  }, _.union(categoryIdxs))
 
 
   console.log("Shape concentration parameter:")
@@ -580,7 +619,7 @@ var plotter = function(dist, data){
 ///
 var makeModelQuery = editor.get('makeModelQuery')
 var data = editor.get("materialData")
-var newData = data.concat([{sx:0.5, v:-1.3, shape:"cross", color:"orange"}])
+var newData = data.concat([{d:0.5, v:-1.3, shape:"cross", color:"orange"}])
 var shapes = ["circle", "triangle", "square", "cross"]
 var colors = ["yellow","purple","pink", "orange"]
 
@@ -603,7 +642,7 @@ var shapes = ["circle", "triangle", "square", "cross"]
 
 var distOrange = Infer({method:"rejection", samples:30}, 
   function(){return imagineColor("orange",dist,colors,shapes)})
-viz.scatterShapes(map(function(x){x.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
+viz.scatterShapes(map(function(s){s.value}, distOrange.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
 
 ~~~
@@ -615,15 +654,19 @@ var shapes = ["circle", "triangle", "square", "cross"]
 
 var distCross = Infer({method:"rejection", samples:50}, 
   function(){return imagineShape("cross",dist,colors,shapes)})
-viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
+viz.scatterShapes(map(function(s){s.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
 
 Explain why the model in question three imagines different data from the model in question two, after seeing the same new observation.
 
 <textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
 
-<b>Before exporting for submission please run your code (button below).</b><br/>
-Your figures will then be automatically saved in the export file.
+This is a brand new problem set, so we would love to receive feedback on it! We've included a textbox in case you'd like to provide some here (Piazza or end-of-term feedback are other options).
+
+<textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
+
+<b>Before exporting for submission please run your code (button below). If your code has already run, you don't have to press the button below.</b><br/>
+Your figures will then be automatically saved in the export file. This is meant to save time for the TAs when we grade it, but if it isn't working, it's fine to just submit the code without the figures.
 <table>
 <tr>
 <td>

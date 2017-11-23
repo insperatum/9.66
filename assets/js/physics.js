@@ -175,6 +175,8 @@ function applyWorld(initialWorld) {
       bodyDef.linearVelocity.y = velocity[1] / SCALE;
       var f = world.CreateBody(bodyDef).CreateFixture(fixDef);
       f.color = color
+      f.shape = shape
+      f.dims = dims
     }
   )
   return initialWorld;
@@ -209,16 +211,17 @@ function churchWorld_from_bodyList(body) {
   while (body) {
     var isStatic = !(body.GetType() == 2);
     var shapeInt = body.GetFixtureList().GetType();
-    var shape;
-    var dims;
-    if (shapeInt == 0) {
-      shape = "circle";
-      dims = [body.GetFixtureList().GetShape().GetRadius() * SCALE];
-    } else {
-      shape = "square";
-      var vertices = body.GetFixtureList().GetShape().GetVertices();
-      dims = [vertices[2].x * 2 * SCALE, vertices[2].y * 2 * SCALE];
-    }
+
+    var shape = body.GetFixtureList().shape;
+    var dims = body.GetFixtureList().dims;
+    // if (shapeInt == 0) {
+    //   shape = "circle";
+    //   dims = [body.GetFixtureList().GetShape().GetRadius() * SCALE];
+    // } else {
+    //   shape = "square";
+    //   var vertices = body.GetFixtureList().GetShape().GetVertices();
+    //   dims = [vertices[2].x * 2 * SCALE, vertices[2].y * 2 * SCALE];
+    // }
     var x = body.GetPosition().x * SCALE;
     var y = body.GetPosition().y * SCALE;
     worldList.push({shape: shape,
