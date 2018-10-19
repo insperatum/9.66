@@ -80,3 +80,12 @@ h3 {
 li {
     padding-bottom: 7px;
 }
+
+.listing{
+     margin:5px;
+     padding:5px;
+}
+
+.pset_listing {
+    background: #65b7bf33;
+}

@@ -5,6 +5,8 @@ title: Problem Set 4
 description: Due Friday, Dec 1 at 6pm
 custom_js: assets/js/save_v2.js
 ---
+<script type="text/javascript">autosaveTo = null</script>
+<div id="autosaveTxt" style="font-style:italic"></div>
 
 
 In this problem set, we will build a [hierarchical Bayesian model](https://probmods.org/chapters/09-hierarchical-models.html) in order to learn about object categories in the world by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 

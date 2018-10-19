@@ -15,23 +15,28 @@ custom_css:
 
 {% assign sorted_pages = site.pages | sort:"name" %}
 
-<ol> 
+<!-- <ul> -->
+<div>
 {% for p in sorted_pages %}
     {% if p.layout == 'chapter' and p.hidden != true %}
-    <li><a href="{{ site.baseurl }}{{ p.url }}">{{p.title}}</a><br />
-    <em>{{ p.description }}</em>
-    </li>
-
+	    <div class="listing{% if p.type == 'pset' %} pset_listing{% endif %}">
+	    <a href="{{ site.baseurl }}{{ p.url }}">{{p.title}}</a><br />
+	    <em>{{ p.description }}</em>
+	    </div>
     {% endif %}
 {% endfor %}
-</ol>
+<!-- </ol> -->
 
-<hr/>
+</div>
+
+<hr />
 
 Some WebPPL resources and examples:
 
-- [Probmods textbook](http://probmods.org/)
+- [WebPPL Website](http://webppl.org/)
 - [WebPPL Documentation](http://docs.webppl.org/en/master/)
+- [WebPPL source code](https://github.com/probmods/webppl)
+- [Probmods textbook](http://probmods.org/)
+- [Toby and Kevin's tutorial](https://github.com/tobiasgerstenberg/webppl_tutorial)
 - [Modelling Agents with Probabilistic Programs](http://agentmodels.org)
 - [Design and Implementation of Probabilistic Programs](http://dippl.org)
-- [WebPPL source code](https://github.com/probmods/webppl)

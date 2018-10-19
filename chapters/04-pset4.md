@@ -1,6 +1,6 @@
 ---
 layout: chapter
-hidden: false
+hidden: true 
 title: Problem Set 4
 description: Due Friday, Dec 1 at 6pm
 custom_js: assets/js/save_v2.js

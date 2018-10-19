@@ -191,3 +191,7 @@ td, th {
     margin-left: 0.5em;
     background-color: #da7ea6
 }
+
+.maxchars {
+    color: #bbbbbb;
+}

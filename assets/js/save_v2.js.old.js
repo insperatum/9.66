@@ -10,10 +10,10 @@ function makeState() {
 }
 
 function loadState(state) {
-	// console.log("Loading state:")
-	// console.log(state)
+	console.log("Loading state:")
+	console.log(state)
 	var foo = JSON.parse(state)
-	// console.log(foo)
+	console.log(foo)
 	$(".textAnswer").each(function(i,o) {o.value = foo.text[i]})
 	 if(foo.result) {
 	 	$(".result").each(function(i,o) {o.innerHTML = foo.result[i]; o.className="result"})	
@@ -35,7 +35,7 @@ saveTimeout=null
 function delayedSave() {
 	if(saveTimeout) window.clearTimeout(saveTimeout);
 	saveTimeout = window.setTimeout(function() {
-		// console.log("Saving")
+		console.log("Saving")
 		localStorage[autosaveTo] = makeState()
 		refreshAutosave()
 	}, 1000);

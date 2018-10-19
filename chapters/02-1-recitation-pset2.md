@@ -1,11 +1,11 @@
 ---
 layout: chapter
-title: Recitation, Oct 17/18
+title: Recitation for PSET 2
 description: Useful webppl methods for pset 2
 custom_js: assets/js/save.js
 ---
 
-<script type="text/javascript">autosaveTo = "recitation_oct18"</script>
+<script type="text/javascript">autosaveTo = "recitation_pset2"</script>
 <div id="autosaveTxt" style="font-style:italic"></div>
 
 # Question 1: Fair coins and biased coins
@@ -16,7 +16,7 @@ custom_js: assets/js/save.js
 var model = function() {
 	// Your code here
 }
-var log_prob = Infer({method:'enumerate'}, model).score('H')
+var log_prob = Infer(model).score('H')
 Math.exp(log_prob)
 ~~~~
 
@@ -28,7 +28,7 @@ Given that first two coin flips landed on heads, what is the posterior distribut
 var model = function() {
 	// Your code here
 }
-viz(Infer({method:'enumerate'}, model))
+viz(Infer(model))
 ~~~~
 
 **(c)**
@@ -60,7 +60,7 @@ My neighbour Kelsey, whose has the same kind of sprinkler, tells me that her law
 ~~~~
 
 **(d)**
-To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu and Josh, each with the same sprinkler, all agree that their lawns were wet too. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/v2/chapters/02-generative-models.html#persistent-randomness-mem).
+To investigate further we poll a selection of our friends who live nearby, and ask if their grass was wet this morning. Kevin and Manu and Josh, each with the same sprinkler, all agree that their lawns were wet too. Using `mem`, write a model to reason about arbitrary numbers of people, and then use it to find the new probability that it rained. `mem` is described in more detail in the [probmods textbook](https://probmods.org/chapters/generative-models.html#persistent-randomness-mem).
 ~~~~
 ~~~~
 
@@ -68,7 +68,7 @@ To investigate further we poll a selection of our friends who live nearby, and a
 Rather than rewrite the model every time we want to make a new query, we can define a reusable function to build each new model query for us (given a set of conditions or outputs). For example, the code below defines a generic model for reasoning about people's strength in arm wrestling tournaments. For simplicity, each person is assumed to be either strong or weak.
 
 ~~~~
-var makeModelQuery = function(querier) {return function() {
+var makeModel = function(f) {return function() {
     var strong = mem(function(person) { //Is this person strong?
         flip()
     })
@@ -81,15 +81,15 @@ var makeModelQuery = function(querier) {return function() {
             flip(0.5)
         }
     }
-    querier(strong, beats)
+    f(strong, beats)
 }}
-editor.put("makeModelQuery", makeModelQuery)
+editor.put("makeModel", makeModel)
 ~~~~ 
 
 If we wanted to find the probability that Hillary is strong, given that she beats Josh, we could write 
 ~~~~
-var makeModelQuery = editor.get("makeModelQuery")
-var dist = Infer({method:'enumerate'}, makeModelQuery(function(strong, beats) {
+var makeModel = editor.get("makeModel")
+var dist = Infer(makeModel(function(strong, beats) {
     condition(beats("Hillary", "Josh"))
     strong("Hillary")
 }))
@@ -113,5 +113,12 @@ Find the probability that Kelsey will beat Kevin, given that Kevin beat Luke in 
 
 
 <table>
-<tr><td><a id="exportBtn"><button style="color:black">Export</button></a></td>
+<tr>
+<td>
+<a id="runBtn"><button style="color:black">Run All</button></a>
+<a id="exportBtn"><button style="color:black">Export</button></a>
+</td>
 <td>Import: <input type="file" id="files" name="files[]" /></td></tr></table>
+
+<br/><br/><br/>
+<hr/>

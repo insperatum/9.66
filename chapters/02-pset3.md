@@ -1,9 +1,9 @@
 ---
 layout: chapter
-hidden: true
 title: Problem Set 3
-description: Due Monday, Nov 20 6pm
-custom_js: assets/js/save_v2.js
+description: Due Tuesday, Nov 15
+custom_js: assets/js/save.js
+hidden: true
 ---
 <script type="text/javascript">autosaveTo = "pset3_v5"</script>
 <div id="autosaveTxt" style="font-style:italic"></div>
@@ -117,7 +117,7 @@ Modify the code above so that `Infer` uses MCMC for inference, using 50000 sampl
 
 This is because in order to initialise the search, Metropolis-Hastings has to find at a setting for the random choices which has non-zero posterior probability. It attempts this by sampling from the prior until it lands on a state which satisfies all of the conditions (i.e. until it happens to sample the correct sequence of coin faces). For sequences much longer than the one above, Metropolis-Hastings will fail to initialise.
 
-We can rewrite the model above to fix this problem. Rather than sampling a face solely to condition it to equal some particular value, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observed face} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](http://probmods.org/chapters/03-conditioning.html#conditions-observations-and-factors).
+We can rewrite the model above to fix this problem. Rather than sampling a face solely to condition it to equal some particular value, we can use the `observe` keyword to directly add each $$\mathbb{P}(\text{observed face} \mid \text{coin})$$ as a likelihood factor. `observe` is descibed in the [probmods textbook](https://probmods.org/v2/chapters/03-conditioning.html#conditions-observations-and-factors).
 
 In the codebox below, rewrite your model so that inference behaves well with even longer sequences. Instead of sampling faces, your recursive function should output only a sequence of coins and call `observe` once for each coin it samples. *Hint: you may want to use either a [Bernoulli Distribution](http://docs.webppl.org/en/master/distributions.html#Bernoulli) or a [Categorical Distribution](http://docs.webppl.org/en/master/distributions.html#Categorical) for your observations*.
 
@@ -165,7 +165,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 // Your code here
 ~~~~
 
-<textarea class="textAnswer" rows="3" cols="80"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(b)**
 Compare your posterior marginals with the human data. Sample a set of two sequences from a model with parameters as in Table 1, and ask five or more human subjects to infer the coins used to produce these sequences, using the following cover story. You may collaborate with your classmates to reduce the burden of data gathering. However, each person must gather data from at least one subject.
@@ -187,7 +187,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 // viz.casino(obss, p_coin1)
 ~~~~
 
-<textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 **(c)**
 Even for an ideal Bayesian agent who knows the parameters of the generating model, the coin weights and the switching probabilities, the difficulty of this parsing task depends on how those parameters are set. Consider different settings of the generating model parameters, and test how well the Bayesian ideal learner does at parsing (inferring the correct generating coin sequences) for several different sequences drawn from the model at each parameter setting.
@@ -200,7 +200,7 @@ var makeModelQuery = editor.get("makeModelQuery")
 *(i)*
 Which parameter settings are intrinsically harder or easier? Why?
 
-<textarea class="textAnswer" rows="4" cols="80"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
 *(ii)*
 Try out your own intuitions on similar example sequences where you know the correct parameter values for the generating model but do not know (i.e., hide from yourself) the true coins used at each step of the sequence. Qualitatively, do the same parameter changes which affect difficulty for the model also affect difficulty for you? Are there sequences that are systematically difficult for you, easy for the model, or vice versa? Give some examples of sequences and the inferences you and the model made to support your claims.
@@ -210,16 +210,10 @@ Try out your own intuitions on similar example sequences where you know the corr
 **(d)**
 Is the Hidden Markov Model (HMM) approach a good way to model the way people approach this task? What are some ways of generating sequencing of flips where this approach will get the wrong answer? And what general changes would you make to the model to try to correct the model?
 
-<textarea class="textAnswer" rows="6" cols="80"></textarea><br/>
+<textarea class="textAnswer" rows="8" cols="80"></textarea><br/>
 
-<b>Before exporting for submission please run your code (button below).</b><br/>
-Your figures will then be automatically saved in the export file.
 <table>
-<tr>
-<td>
-<a id="runBtn"><button style="color:black">Run All</button></a>
-<a id="exportBtn"><button style="color:black">Export</button></a>
-</td>
+<tr><td><a id="exportBtn"><button style="color:black">Export</button></a></td>
 <td>Import: <input type="file" id="files" name="files[]" /></td></tr></table>
 
 <br/><br/><br/>
