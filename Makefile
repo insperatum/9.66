@@ -1,4 +1,6 @@
 deploy :
+	echo "Enter athena username:"
+	read user
 	jekyll build --config _prod.yml --destination _prod
-	rsync -rLvz _prod/ lbh@athena.dialup.mit.edu:/mit/9.660/web_scripts
-	ssh lbh@athena.dialup.mit.edu 'chmod 777 /mit/9.660/web_scripts/bower_components/KaTeX/dist/fonts/*'
+	rsync -rLvz _prod/ ${user}@athena.dialup.mit.edu:/mit/9.660/web_scripts
+	ssh ${user}@athena.dialup.mit.edu 'chmod 777 /mit/9.660/web_scripts/bower_components/KaTeX/dist/fonts/*'
