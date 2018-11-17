@@ -80,6 +80,11 @@ $(document).ready(function() {
 	    this.href = data;
 	    this.target = '_blank';
 	    this.download = 'export.txt';
+
+		$('#exporttxt').remove()
+		$('.container').append('<textarea id="exporttxt" rows="1" cols="50"></textarea>')
+		$("#exporttxt").val(makeState())
+		$("#exporttxt").select()
 	}
 
 	// document.getElementById("loadBtn").onclick = function() {

@@ -1,12 +1,16 @@
 ---
 layout: chapter
-hidden: true
 title: Problem Set 4
-description: Due Friday, Dec 1 at 6pm
-custom_js: assets/js/save_v2.js
+description: Due <...>
+custom_js: assets/js/save.js
+type: pset
+hidden: true
 ---
-<script type="text/javascript">autosaveTo = null</script>
+<script type="text/javascript">autosaveTo = "pset4"</script>
+**Due <....>**
+
 <div id="autosaveTxt" style="font-style:italic"></div>
+
 
 
 In this problem set, we will build a [hierarchical Bayesian model](https://probmods.org/chapters/09-hierarchical-models.html) in order to learn about object categories in the world by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 
@@ -598,8 +602,10 @@ var distCross = Infer({method:"rejection", samples:50},
 viz.scatterShapes(map(function(x){x.value}, distCross.samples), {xBounds:[-3,3], yBounds:[-3,3]})
 ~~~
 
-<b>Before exporting for submission please run your code (button below).</b><br/>
-Your figures will then be automatically saved in the export file.
+<b>Before submission please make sure all of the figures you want to include are visible above.</b><br/>
+If not, you can use the 'Run All' button below to re-run all of your code.<br/>
+
+To submit your work, click the export button and then upload the result to stellar.
 <table>
 <tr>
 <td>
@@ -608,6 +614,5 @@ Your figures will then be automatically saved in the export file.
 </td>
 <td>Import: <input type="file" id="files" name="files[]" /></td></tr></table>
 
-<br/><br/><br/>
-<hr/>
+<br/><br/><br/><br/><br/><br/>
 

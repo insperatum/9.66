@@ -3,7 +3,6 @@ layout: chapter
 title: Problem Set 3
 description: Due Friday, Nov 9 at 6pm
 custom_js: assets/js/save.js
-type: pset
 ---
 <script type="text/javascript">autosaveTo = "pset3"</script>
 **Due Friday, Nov 9 at 6pm**
@@ -238,7 +237,7 @@ Is the Hidden Markov Model (HMM) approach a good way to model the way people app
 <b>Before submission please make sure all of the figures you want to include are visible above.</b><br/>
 If not, you can use the 'Run All' button below to re-run all of your code.<br/>
 
-To submit your work, click the export button and then upload the result to stellar.
+To submit your work, click the export button and then upload the result to stellar. <i>Note: If you get a ‘Download Failed’ error, you can also copy+paste the textbox that appears underneath into a text file</i>
 <table>
 <tr>
 <td>

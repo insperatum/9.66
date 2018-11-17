@@ -51,11 +51,8 @@ var world = new b2World(
 // same fixture definition for all objects
 var fixDef = new b2FixtureDef;
 fixDef.density = 1.0;
-fixDef.friction = 0.2;
-fixDef.restitution = 0.1;
 
 var bodyDef = new b2BodyDef;
-bodyDef.angle = 0;
 
 var listToArray = function(list, recurse) {
 	if (recurse) {
@@ -98,7 +95,10 @@ function applyWorld(initialWorld) {
       var colorMap = {
         'red':[1,0.2,0.2],
         'green':[0,1,0],
-        'blue':[0,1,1]
+        'blue':[0,1,1],
+        'pink':[0.8,0,0.5],
+        'yellow':[1,1,0],
+        'purple':[0.5,0,1]
       }
       var color = [0,1,0]
       if(obj.color != undefined) {
@@ -108,26 +108,62 @@ function applyWorld(initialWorld) {
           // console.log("Unknown color: " + obj.color)
         }
       }
+      var colorIndex = obj.color == 'red' || obj.color == 'blue' || obj.color == 'green' ? 0 : obj.color == 'pink' ? 1 : obj.color == 'yellow' ? 2 : 3
       bodyDef.type = obj.static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
       if (shape == "circle") {
         var r = dims[0] / SCALE;
+        fixDef.friction = [0.7, 1, 2, 0.7][colorIndex]; //0.2
+        fixDef.restitution = [0.5, 0.3, 0.02, 0.5][colorIndex]; //0.1
         fixDef.shape = new b2CircleShape(r);
+        bodyDef.angularDamping=[1.3, 1.8, 3, 1.3][colorIndex];
         // console.log("fixDef:", JSON.stringify(fixDef))
-      } else if (shape == "rect") {
+        bodyDef.angle=0
+      } else if (shape == "square") {
         var w = dims[0] / SCALE;
-        var h = dims[1] / SCALE;
+        var h = dims[0] / SCALE;
         fixDef.shape = new b2PolygonShape;
+        fixDef.friction = [0.6, 0.1, 0.4, 0.065][colorIndex]; //0.2
+        fixDef.restitution = obj.static ? 0.1 : [0.1, 0.1, 0.1, 0.6][colorIndex]; //0.1
         fixDef.shape.SetAsBox(w, h);
+        bodyDef.angularDamping=[0.1, 0.1, 0.4, 0.1][colorIndex];
         // console.log("fixDef:", JSON.stringify(fixDef))
+        bodyDef.angle=0//Math.random()+Math.PI/3
       } else if (shape == "triangle") {
         fixDef.shape = new b2PolygonShape;
+        fixDef.friction = [0.6, 0.1, 0.4, 0.065][colorIndex]; //0.2
+        fixDef.restitution = obj.static ? 0.1 : [0.6, 0.1, 0.4, 0.6][colorIndex]; //0.1
         var d = dims[0] / SCALE;
         fixDef.shape.SetAsArray([
           new b2Vec2(d * Math.cos(0), d * Math.sin(0)),
           new b2Vec2(d * Math.cos(2*Math.PI/3), d * Math.sin(2*Math.PI/3)),
           new b2Vec2(d * Math.cos(-2*Math.PI/3), d * Math.sin(-2*Math.PI/3))
         ]);
-        fixDef.shape.foo=189
+        bodyDef.angularDamping=[0.3, 0.1, 0.4, 0.1][colorIndex];
+        bodyDef.angle=0//Math.random()
+      } else if (shape == "pentagon") {
+        fixDef.shape = new b2PolygonShape;
+        fixDef.friction = [0.6, 0.1, 0.1, 0.1][colorIndex];
+        fixDef.restitution = [0.6, 0.1, 0.1, 0.1][colorIndex];
+        var d = dims[0] / SCALE;
+        fixDef.shape.SetAsArray([
+          new b2Vec2(d * Math.cos(0), d * Math.sin(0)),
+          new b2Vec2(d * Math.cos(2*Math.PI/5), d * Math.sin(2*Math.PI/5)),
+          new b2Vec2(d * Math.cos(4*Math.PI/5), d * Math.sin(4*Math.PI/5)),
+          new b2Vec2(d * Math.cos(6*Math.PI/5), d * Math.sin(6*Math.PI/5)),
+          new b2Vec2(d * Math.cos(8*Math.PI/5), d * Math.sin(8*Math.PI/5)),
+        ]);
+        bodyDef.angularDamping=[0.3, 0.1, 0.1, 0.1][colorIndex];
+        bodyDef.angle=0
+      } else if (shape == "rect") {
+        var w = dims[0] / SCALE;
+        var h = dims[1] / SCALE;
+        fixDef.shape = new b2PolygonShape;
+        fixDef.friction = obj.static ? 0.6 : 0.2; //0.2
+        fixDef.restitution = obj.static ? 0.1 : 0.2; //0.1
+        fixDef.shape.SetAsBox(w, h);
+        bodyDef.angularDamping= obj.static ? 0.1 : 0.2;
+        // console.log("fixDef:", JSON.stringify(fixDef))
+        bodyDef.angle=0
       } else {
         throw new Error('unknown shape ' + shape);
       }
@@ -197,8 +233,8 @@ function churchWorld_from_bodyList(body) {
                     color: color,
                     x: x,
                     y: y,
-                    vx: body.GetLinearVelocity().x * SCALE,
-                    vy: body.GetLinearVelocity().y * SCALE});
+                    velocity: [body.GetLinearVelocity().x * SCALE,
+                      body.GetLinearVelocity().y * SCALE]});
     body = body.GetNext();
   }
   return worldList;

@@ -1,15 +1,17 @@
 ---
 layout: chapter
 title: Problem Set 4
-description: OPTIONAL - Due Monday, Dec 3 at 6pm
+description: OPTIONAL - Due Monday, December 3 at 6pm
 custom_js: assets/js/save.js
 type: pset
+hidden: true
 ---
-<script type="text/javascript">autosaveTo = "pset4"</script>
+<script type="text/javascript">autosaveTo = "pset4_ans"</script>
 **OPTIONAL** - Due Monday, December 3 at 6pm
 
 <div id="autosaveTxt" style="font-style:italic"></div>
-<br/>
+
+
 In this problem set, we will build a [hierarchical Bayesian model](http://probmods.org/chapters/09-hierarchical-models.html) to learn about object categories in the world, by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 
 
 # Question 1: Preliminaries on the webppl physics engine
@@ -47,10 +49,19 @@ var tower = {shape: 'rect',
 }
 
 /* your code here */
+/*
+var ball = {shape: 'circle',
+  static: false,
+  dims: [10],
+  x: 10,
+  y: 390 + 100 - 10,
+  color: 'blue', 
+  velocity: [1000, 0]
+}*/
 
 //Defining the world. 
 //Note that the state of the world is completely defined by a list of objects:
-var initialWorld = [ground, tower]
+var initialWorld = [ground, tower].concat(ball)
 //Simulating and animating the world
 physics.animate(1000, initialWorld);
 ~~~
@@ -72,18 +83,24 @@ var ground = {shape: 'rect',
   color: 'gray'
 }
 
-var slidingBox = {
-  /* your code here */
-}
+/* your code here */
+/*
+var slidingBox = {shape:'rect',
+  static: false,
+  dims: [15, 10],
+  x: worldWidth/2-100,
+  y: worldHeight - 20,
+  color: 'green', 
+  velocity: [500,0]
+}*/
 
 //Defining the world:
 var initialWorld = [ground, slidingBox]
 
 //Simulate the world state at several different time points
-var times =  /* your code here */
+var times =  /* your code here */ //_.range(0, 500, 20)
 var worlds_t = map(function(t){
-  var world_t = /* your code here */
-  return world_t
+  /* your code here */ //physics.run(t, initialWorld)
 },times)
 
 //Storing our data so we can use it in subsequent code boxes
@@ -107,6 +124,12 @@ var positions = map(function(i){
 console.log(JSON.stringify(positions))
 
 var velocities = /* your code here */
+/*map(function(i){
+  var slidingBoxState = worlds_t[i][0] //last object in initialWorld is first object in world_t! 
+  var velocity_t = {x:slidingBoxState.velocity[0], y:slidingBoxState.velocity[1]}
+  return velocity_t 
+},_.range(worlds_t.length))
+console.log(JSON.stringify(velocities))*/
 
 console.log('X position over time for slidingBox:')
 viz.line(times, map(function(position){return position.x}, positions))
@@ -114,6 +137,11 @@ console.log('Y position over time for slidingBox:')
 viz.line(times, map(function(position){return position.y}, positions))
 
 /* your visualization code for velocity here */
+/*
+console.log('X velocity over time for slidingBox:')
+viz.line(times, map(function(velocity){return velocity.x}, velocities))
+console.log('Y velocity over time for slidingBox:')
+viz.line(times, map(function(velocity){return velocity.y}, velocities))*/
 ~~~
 
 **iii)** Now we'll cover the webppl function `find`. The first argument of `find` is a "test" function with one argument that returns a boolean. The second argument of `find` is a list. `find` will return the first element of the list for which the test function returns `true`. For example,
@@ -132,8 +160,10 @@ var halfSpeed = find(function(w_t){return w_t[0].velocity[0] < (worlds_t[0][0].v
 //extract the property of interest
 var halfSpeed_pos = halfSpeed[0].x
 
-/* your code here*/
-//print your answer
+/* your code here (print the answer)*/
+/*var passesCenter = find(function(w_t){return w_t[0].x > (worldWidth/2)}, worlds_t)
+var passesCenter_veloc = passesCenter[0].velocity
+print(passesCenter_veloc)*/
 
 ~~~ 
 
@@ -203,16 +233,24 @@ var getMotion = function(initialWorld,objects){
 
     //Simulate the world state at several different time points
     var times =  /* your code here */
+    //_.range(50, 1000, 5)
     var world = _.concat(initialWorld, obj)
     var worlds_t = map(function(t){
-      var world_t = /* your code here */
-      return world_t
+      /* your code here */
+      /*physics.run(t, world)*/
     },times)
     
     /* your code here to measure distance*/
+    /*var finalPos = find(function(w_t){return w_t[0].velocity[0] < (0.5)}, worlds_t)
+    var distance = finalPos[0].x*/
     
     /* your code here to measure velocity*/
-    
+    /*var exitVelocity = find(function(w_t){return w_t[0].x > (worldWidth/2 - 125)}, worlds_t)
+   
+    var velX = exitVelocity[0].velocity[0]
+    var velY = exitVelocity[0].velocity[1]
+    var velocity = Math.sqrt(velX*velX + velY*velY)*/
+   
     return {motion:{distance:distance, velocity:velocity}, object:{shape:obj.shape, color:obj.color}}
 
   }, objects)
@@ -269,7 +307,7 @@ In making a comparison to [Kemp et al. (2007)](http://web.mit.edu/cocosci/Papers
 **i)** The following is the specification of distributions for the graphical model above. In this question you'll complete a few codes of the model query below according to this specification.
 
 $$
-\bar \pi_\text{cat} \sim \text{Dirichlet}(\bar \alpha = [0.2, 0.2, \ldots, 0.2]) \quad (length\text{ }K)
+\bar \pi_\text{cat} \sim \text{Dirichlet}(\bar \alpha = [0.2, 0.2, \ldots, 0.2]) \qquad (length\text{ }K)
 $$
 
 $$
@@ -324,19 +362,19 @@ var makeModel = function(data, shapes, colors){
     //parameters on distributions over what categories are like
     var distParams = {
       categoryProbs: sample(Dirichlet({alpha:Vector(_.range(maxCategories).fill(0.2))})),
-      colorAlpha: /* your code here */,
-      shapeAlpha: /* your code here */
+      colorAlpha: /* your code here */ //sample(Exponential({a:1})),
+      shapeAlpha: /* your code here */ //sample(Exponential({a:1}))
     }
 
     //parameters defining distributions over objects within a category
     var categoryParams = map(function(k) {
       return {
-        p_color: /* your code here */,
-        p_shape: /* your code here */,
-        mu_distance: /* your code here */,
-        sigma_distance: /* your code here */,
-        mu_velocity: /* your code here */,
-        sigma_velocity: /* your code here */
+        p_color: /* your code here */ //sample(Dirichlet({alpha: Vector(_.range(colors.length).fill(distParams.colorAlpha))})),
+        p_shape: /* your code here */ //sample(Dirichlet({alpha: Vector(_.range(shapes.length).fill(distParams.shapeAlpha))})),
+        mu_distance: /* your code here */ //sample(Gaussian({mu:0, sigma:2})),
+        sigma_distance: /* your code here */ //0.2,
+        mu_velocity: /* your code here */ //sample(Gaussian({mu:0, sigma:2}))/* your code here */,
+        sigma_velocity: /* your code here */ //0.2
       } 
     }, _.range(maxCategories))
 
@@ -345,6 +383,9 @@ var makeModel = function(data, shapes, colors){
       var z = sample(Discrete({ps:distParams.categoryProbs}))
       observe(Gaussian({mu:categoryParams[z].mu_distance, sigma:categoryParams[z].sigma_distance}), o.distance)
       /* complete three more observe statements here */
+      /*observe(Gaussian({mu:categoryParams[z].mu_velocity, sigma:categoryParams[z].sigma_velocity}), o.velocity)
+      observe(Categorical({ps:categoryParams[z].p_shape,  vs:shapes }), o.shape)
+      observe(Categorical({ps:categoryParams[z].p_color,  vs:colors}), o.color)*/
       
       return z
     }, data)
@@ -425,11 +466,11 @@ var plotter = function(dist, data){
 ///
 var makeModel = editor.get('makeModel')
 var data = editor.get("data")
-var newObservation = {distance:2.6, velocity:-2.4, shape:"cross", color:"orange"}
-var newData = /* your code here */
+var newObservation = [{distance:2.6, velocity:-2.4, shape:"cross", color:"orange"}]
+var newData = /* your code here */ //_.concat(data, newObservation)
 
-var shapes = /* your code here */
-var colors = /* your code here */
+var shapes = /* your code here */ //["circle", "triangle", "square", "cross"]
+var colors = /* your code here */ //["red", "green", "blue", "orange"]
 
 
 
@@ -481,7 +522,15 @@ viz.scatterShapes(map(function(s){s.value}, distOrange.samples), {xBounds:[-3,3]
 ~~~
 var imagineShape = function(shape,dist,colors,shapes) {
   /* your code here */
-  return {distance, velocity, color, shape}
+  /*var p = sample(dist)
+  var distParams = p.distParams
+  var categoryParams = p.categoryParams
+  var j = sample(Discrete({ps:distParams.categoryProbs}))
+  observe(Categorical({ps:categoryParams[j].p_shape, vs:shapes}), shape)
+  var color = sample(Categorical({ps:categoryParams[j].p_color, vs:colors}))
+  var distance = sample(Gaussian({mu:categoryParams[j].mu_distance, sigma:categoryParams[j].sigma_distance}))
+  var velocity = sample(Gaussian({mu:categoryParams[j].mu_velocity, sigma:categoryParams[j].sigma_velocity}))
+  return {distance, velocity, color, shape}*/
 }
 editor.put("imagineShape",imagineShape)
 ~~~
@@ -554,6 +603,8 @@ var objects = [{static:false,x:worldWidth/2 - 290,y:worldHeight - 200,"shape":"s
 
 /* your code here to infer motion properties of the variable 'objects' 
 you should be able to use editor.get */
+/*var getMotion = editor.get('getMotion')
+var motionData = getMotion([ground, ramp], objects)*/
 
 //Scaling and visualization, as before:
 var posDist = {mu:listMean(map(function(o) {return o.motion.distance}, motionData)),
@@ -602,6 +653,11 @@ var plotter = function(dist, data){
 ///
 
 /* your code here, should be similar to 2.c.i */
+/*var makeModel = editor.get('makeModel')
+var data = editor.get("materialData")
+var shapes = ["circle", "triangle", "square"]
+var colors = ["yellow","purple","pink"]
+var model = makeModel(data,shapes,colors)*/
 
 var dist = Infer({method:"MCMC", burn:10000, lag:100, callbacks: [editor.MCMCProgress()]}, model)
 plotter(dist, data)
@@ -693,7 +749,7 @@ Explain why the model in question three imagines different data from the model i
 <b>Before submission please make sure all of the figures you want to include are visible above.</b><br/>
 If not, you can use the 'Run All' button below to re-run all of your code.<br/>
 
-To submit your work, click the export button and then upload the result to stellar. <i>Note: If you get a ‘Download Failed’ error, you can also copy+paste the textbox that appears underneath into a text file</i>
+To submit your work, click the export button and then upload the result to stellar.
 <table>
 <tr>
 <td>
@@ -702,5 +758,5 @@ To submit your work, click the export button and then upload the result to stell
 </td>
 <td>Import: <input type="file" id="files" name="files[]" /></td></tr></table>
 
-<br/><br/>
+<br/><br/><br/><br/><br/><br/>
 
