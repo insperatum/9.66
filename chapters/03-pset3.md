@@ -1,11 +1,11 @@
 ---
 layout: chapter
 title: Problem Set 3
-description: Due Friday, Nov 9 at 6pm
+description: Due Monday, Nov 12 at 6pm
 custom_js: assets/js/save.js
 ---
 <script type="text/javascript">autosaveTo = "pset3"</script>
-**Due Friday, Nov 9 at 6pm**
+**Due Monday, Nov 12 at 6pm**
 
 <div id="autosaveTxt" style="font-style:italic"></div>
 
@@ -99,7 +99,7 @@ var dist = Infer({method:"enumerate"}, model)
 viz.casino(observations, dist)
 ~~~~
 
-**(c)** Now try copying your code into the box below, to run inference on a longer sequence of observations. 
+**(c)** Now try copying your code into the box below, to run inference on a longer sequence of observations.
 
 ~~~~
 var observations = ['H', 'H', 'H', 'H', 'H', 'T', 'T', 'T', 'T', 'H', 'T', 'H', 'H', 'H', 'H']
@@ -266,7 +266,7 @@ To quantify the error of the sampler, you can use the measure of mean error, in 
       $$\tilde{S_{i}}$$ be the posterior marginal of state $$S_{i}$$,
       estimated by the sampler. Then the $$E_{PM}$$ is:
 
-$$ E_{PM} = \left|[\tilde{S_{1}}\ \tilde{S_{2}}\ \cdots\ 
+$$ E_{PM} = \left|[\tilde{S_{1}}\ \tilde{S_{2}}\ \cdots\
           \tilde{S_{n}}] - [S_{1}\ S_{2}\ \cdots\ S_{n}]\right| $$
 
 where each $$S_{i}$$ is the true setting of the latent
