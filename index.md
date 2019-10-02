@@ -13,7 +13,7 @@ custom_css:
 
 <br />
 
-<div style="background:#ddffee; padding:15px;font-style: italic;font-size:12px">
+<!-- <div style="background:#ddffee; padding:15px;font-style: italic;font-size:12px">
 Hi class,<br/>
 A few people seem to be having autosave/export issues with PSET4. I think it's to do with the size of the export being too big for some browsers, but I'm not sure. If you're having issues:<br/><br/>
 <ol>
@@ -23,7 +23,7 @@ A few people seem to be having autosave/export issues with PSET4. I think it's t
 If anybody's still having issues, let me know and hopefully I can sort them out today. Thanks for your help working this out!<br/>
 ~ Luke
 </div>
-<hr />
+<hr /> -->
 
 {% assign sorted_pages = site.pages | sort:"name" %}
 

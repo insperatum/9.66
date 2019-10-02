@@ -4,6 +4,7 @@ title: Problem Set 4
 description: OPTIONAL - Due Monday, Dec 3 at 6pm
 custom_js: assets/js/save.js
 type: pset
+hidden: true
 ---
 <!-- <script type="text/javascript">autosaveTo = "pset4"</script> -->
 <script type="text/javascript">autosaveTo = "pset4new"; window.autoloadFrom="pset4"; window.noResultSaving=true</script>
