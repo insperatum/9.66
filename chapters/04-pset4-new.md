@@ -1,15 +1,18 @@
 ---
 layout: chapter
-title: Problem Set 4
-description: OPTIONAL - Due Monday, Dec 3 at 6pm
+title: Problem Set 4 (graph export disabled)
+description: Try this is you're having autosave/export issues
 custom_js: assets/js/save_new.js
+hidden: true
 type: pset
 ---
-<script type="text/javascript">autosaveTo = "pset4"</script>
+<script type="text/javascript">autosaveTo = "pset4new"; window.autoloadFrom="pset4"; window.noResultSaving=true</script>
 **OPTIONAL** - Due Monday, December 3 at 6pm
 
+<b>Note: To prevent autosave/export issues, this page only saves code and text answers (not the graphs/animations/etc.)</b><br />
+
 <div id="autosaveTxt" style="font-style:italic"></div>
-<br/>
+
 In this problem set, we will build a [hierarchical Bayesian model](http://probmods.org/chapters/09-hierarchical-models.html) to learn about object categories in the world, by observing how different objects move. First, we need to get familiar with webppl's built-in physics engine. We are going to use it to simulate data from the world. 
 
 # Question 1: Preliminaries on the webppl physics engine
@@ -688,10 +691,6 @@ Explain why the model in question three imagines different data from the model i
 
 
 <br/><br/>
-
-
-<b>Before submission please make sure all of the figures you want to include are visible above.</b><br/>
-If not, you can use the 'Run All' button below to re-run all of your code.<br/>
 
 To submit your work, click the export button and then upload the result to stellar. <i>Note: If you get a ‘Download Failed’ error, you can also copy+paste the textbox that appears underneath into a text file</i>
 <table>

@@ -13,6 +13,18 @@ custom_css:
 
 <br />
 
+<div style="background:#ddffee; padding:15px;font-style: italic;font-size:12px">
+Hi class,<br/>
+A few people seem to be having autosave/export issues with PSET4. I think it's to do with the size of the export being too big for some browsers, but I'm not sure. If you're having issues:<br/><br/>
+<ol>
+<li>Try this <a href="/chapters/04-pset4-new.html">alternate PSET4 page</a>, which only saves code/text (but not the generated graphs/animations/etc). This is fine to submit to stellar.</li>
+<li>Look at your cache size <a href="/chapters/localStorage.html">here</a> and tell me what it says (e.g. on <a href="https://piazza.com/class/jmpdtl0mg8b3hw?cid=161">piazza</a>)</li>
+</ol>
+If anybody's still having issues, let me know and hopefully I can sort them out today. Thanks for your help working this out!<br/>
+~ Luke
+</div>
+<hr />
+
 {% assign sorted_pages = site.pages | sort:"name" %}
 
 <!-- <ul> -->
