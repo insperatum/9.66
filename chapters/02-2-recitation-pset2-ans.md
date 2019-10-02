@@ -3,6 +3,7 @@ layout: chapter
 hidden: false
 title: Solutions for Recitation for PSET 2
 description:
+hidden: true
 ---
 
 <div id="autosaveTxt" style="font-style:italic">(This page will not save any changes)</div>

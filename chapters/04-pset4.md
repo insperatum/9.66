@@ -2,10 +2,13 @@
 layout: chapter
 title: Problem Set 4
 description: OPTIONAL - Due Monday, Dec 3 at 6pm
-custom_js: assets/js/save_new.js
+custom_js: assets/js/save.js
 type: pset
 ---
-<script type="text/javascript">autosaveTo = "pset4"</script>
+<!-- <script type="text/javascript">autosaveTo = "pset4"</script> -->
+<script type="text/javascript">autosaveTo = "pset4new"; window.autoloadFrom="pset4"; window.noResultSaving=true</script>
+<i><b>note from luke (todo): currently graphs/results are not saved here, to minimise cache size</b></i>
+
 **OPTIONAL** - Due Monday, December 3 at 6pm
 
 <div id="autosaveTxt" style="font-style:italic"></div>

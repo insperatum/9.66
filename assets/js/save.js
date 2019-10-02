@@ -1,12 +1,20 @@
 function makeState() {
 	var d = new Date()
-	return JSON.stringify({
-			code: $('.CodeMirror').map(function() {return this.CodeMirror.getValue()}).toArray(),
-			result: $('.result').map(function() {return this.innerHTML}).toArray(),
-			text: $(".textAnswer").map(function() {return this.value}).toArray(),
-			//html: $('html').html(),
-			savedAt: d.toLocaleDateString() + " " + d.toLocaleTimeString()
-	    })
+	if(window.noResultSaving) {
+		return JSON.stringify({
+				code: $('.CodeMirror').map(function() {return this.CodeMirror.getValue()}).toArray(),
+				text: $(".textAnswer").map(function() {return this.value}).toArray(),
+				savedAt: d.toLocaleDateString() + " " + d.toLocaleTimeString()
+		    })
+	} else {
+		return JSON.stringify({
+				code: $('.CodeMirror').map(function() {return this.CodeMirror.getValue()}).toArray(),
+				result: $('.result').map(function() {return this.innerHTML}).toArray(),
+				text: $(".textAnswer").map(function() {return this.value}).toArray(),
+				//html: $('html').html(),
+				savedAt: d.toLocaleDateString() + " " + d.toLocaleTimeString()
+		    })
+	}
 }
 
 function loadState(state) {
@@ -36,7 +44,8 @@ function delayedSave() {
 	if(saveTimeout) window.clearTimeout(saveTimeout);
 	saveTimeout = window.setTimeout(function() {
 		// console.log("Saving")
-		localStorage[autosaveTo] = makeState()
+		//localStorage[autosaveTo + ".bak"] = localStorage[autosaveTo]
+		localStorage[autosaveTo] = makeState() 
 		refreshAutosave()
 	}, 1000);
 }
@@ -44,7 +53,14 @@ function delayedSave() {
 
 function init() {
 	if($('.CodeMirror').length > 0) {
-		if(localStorage[autosaveTo]) loadState(localStorage[autosaveTo])
+		if(localStorage[autosaveTo]) {
+			loadState(localStorage[autosaveTo])
+		} else if(localStorage[autosaveTo + ".bak"]) {
+			loadState(localStorage[autosaveTo]+".bak")
+		} else if(window.autoloadFrom && localStorage[autoloadFrom]) {
+			loadState(localStorage[autoloadFrom])
+		}
+
 		$(".textAnswer").on("input", delayedSave)
 		$('.CodeMirror').each(function() {
 			this.CodeMirror.on("change", delayedSave)
