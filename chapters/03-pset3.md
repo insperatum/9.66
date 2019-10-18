@@ -6,7 +6,7 @@ custom_js: assets/js/save.js
 hidden: false
 ---
 <script type="text/javascript">autosaveTo = "pset3"</script>
-**Due Monday, Nov 12 at 6pm**
+**Due Wednesday, Oct 30 at 11:59 pm**
 
 <div id="autosaveTxt" style="font-style:italic"></div>
 
