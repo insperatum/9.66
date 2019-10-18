@@ -1,9 +1,9 @@
 ---
 layout: chapter
 title: Problem Set 3
-description: Due Monday, Nov 12 at 6pm
+description: Due Wednesday, Oct 30 at 11:59pm
 custom_js: assets/js/save.js
-hidden: true
+hidden: false
 ---
 <script type="text/javascript">autosaveTo = "pset3"</script>
 **Due Monday, Nov 12 at 6pm**
