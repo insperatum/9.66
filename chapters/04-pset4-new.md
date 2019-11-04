@@ -1,13 +1,13 @@
 ---
 layout: chapter
 title: Problem Set 4 (graph export disabled)
-description: Try this is you're having autosave/export issues
+description: OPTIONAL - Due Wed, Nov 27th at 11:59pm
 custom_js: assets/js/save_new.js
-hidden: true
+hidden: false
 type: pset
 ---
 <script type="text/javascript">autosaveTo = "pset4new"; window.autoloadFrom="pset4"; window.noResultSaving=true</script>
-**OPTIONAL** - Due Monday, December 3 at 6pm
+**OPTIONAL** - Due Wed, Nov 27 at 11:59pm
 
 <b>Note: To prevent autosave/export issues, this page only saves code and text answers (not the graphs/animations/etc.)</b><br />
 
