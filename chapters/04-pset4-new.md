@@ -1,13 +1,13 @@
 ---
 layout: chapter
 title: Problem Set 4 (graph export disabled)
-description: OPTIONAL - Due Wed, Nov 27th at 11:59pm
+description: OPTIONAL - Due Fri, Nov 29th at 11:59pm
 custom_js: assets/js/save_new.js
 hidden: false
 type: pset
 ---
 <script type="text/javascript">autosaveTo = "pset4new"; window.autoloadFrom="pset4"; window.noResultSaving=true</script>
-**OPTIONAL** - Due Wed, Nov 27 at 11:59pm
+**OPTIONAL** - Due Fri, Nov 29 at 11:59pm
 
 <b>Note: To prevent autosave/export issues, this page only saves code and text answers (not the graphs/animations/etc.)</b><br />
 
